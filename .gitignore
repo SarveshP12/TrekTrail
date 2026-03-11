@@ -1,0 +1,41 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+dist/
+
+# React Native
+mobile/android/app/build/
+mobile/ios/Pods/
+mobile/ios/build/
+*.hprof
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Docker
+infrastructure/.env.docker
+
+# ML
+ml/models/*.tflite
+ml/models/*.pkl
+ml/data/*.csv
+ml/data/*.parquet
+
+# OS
+.DS_Store
+Thumbs.db
