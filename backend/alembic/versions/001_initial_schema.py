@@ -27,7 +27,9 @@ def upgrade() -> None:
         sa.Column("display_name", sa.String(length=100), nullable=False),
         sa.Column("password_hash", sa.Text(), nullable=False),
         sa.Column("avatar_url", sa.String(length=500), nullable=True),
-        sa.Column("preferences", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column(
+            "preferences", postgresql.JSONB(astext_type=sa.Text()), nullable=True
+        ),
         sa.Column("subscription_tier", sa.String(length=20), nullable=False),
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column(
@@ -71,10 +73,16 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
-        op.f("ix_group_sessions_creator_id"), "group_sessions", ["creator_id"], unique=False
+        op.f("ix_group_sessions_creator_id"),
+        "group_sessions",
+        ["creator_id"],
+        unique=False,
     )
     op.create_index(
-        op.f("ix_group_sessions_join_code"), "group_sessions", ["join_code"], unique=True
+        op.f("ix_group_sessions_join_code"),
+        "group_sessions",
+        ["join_code"],
+        unique=True,
     )
     op.create_table(
         "trek_sessions",
@@ -113,14 +121,19 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_trek_sessions_user_id"), "trek_sessions", ["user_id"], unique=False)
+    op.create_index(
+        op.f("ix_trek_sessions_user_id"), "trek_sessions", ["user_id"], unique=False
+    )
     op.create_table(
         "group_members",
         sa.Column("group_id", sa.UUID(), nullable=False),
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("role", sa.String(length=20), nullable=False),
         sa.Column(
-            "joined_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False
+            "joined_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.Column("id", sa.UUID(), nullable=False),
         sa.ForeignKeyConstraint(
@@ -133,8 +146,12 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_group_members_group_id"), "group_members", ["group_id"], unique=False)
-    op.create_index(op.f("ix_group_members_user_id"), "group_members", ["user_id"], unique=False)
+    op.create_index(
+        op.f("ix_group_members_group_id"), "group_members", ["group_id"], unique=False
+    )
+    op.create_index(
+        op.f("ix_group_members_user_id"), "group_members", ["user_id"], unique=False
+    )
     op.create_table(
         "waypoints",
         sa.Column("session_id", sa.UUID(), nullable=False),
@@ -163,7 +180,9 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_waypoints_session_id"), "waypoints", ["session_id"], unique=False)
+    op.create_index(
+        op.f("ix_waypoints_session_id"), "waypoints", ["session_id"], unique=False
+    )
     # ### end Alembic commands ###
 
 

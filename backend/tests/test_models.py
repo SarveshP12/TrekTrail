@@ -242,7 +242,15 @@ class TestGroupSessionModel:
 
     def test_columns_exist(self):
         columns = {c.name for c in GroupSession.__table__.columns}
-        expected = {"id", "creator_id", "name", "join_code", "status", "created_at", "updated_at"}
+        expected = {
+            "id",
+            "creator_id",
+            "name",
+            "join_code",
+            "status",
+            "created_at",
+            "updated_at",
+        }
         assert expected == columns
 
     def test_join_code_unique_and_indexed(self):

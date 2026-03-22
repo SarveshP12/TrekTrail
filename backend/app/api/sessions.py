@@ -9,10 +9,19 @@ from app.database import get_db, get_ts_db
 from app.models.user import User
 from app.schemas.common import PaginatedResponse
 from app.schemas.gps_point import GPSPointBatchUpload, GPSPointRead
-from app.schemas.trek_session import TrekSessionCreate, TrekSessionRead, TrekSessionSummary
+from app.schemas.trek_session import (
+    TrekSessionCreate,
+    TrekSessionRead,
+    TrekSessionSummary,
+)
 from app.services.export_service import generate_gpx, generate_kml
 from app.services.gps_service import get_session_points, store_gps_points
-from app.services.session_service import end_session, get_session, get_user_history, start_session
+from app.services.session_service import (
+    end_session,
+    get_session,
+    get_user_history,
+    start_session,
+)
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -72,9 +81,16 @@ async def get_track(
                 "type": "Feature",
                 "geometry": {
                     "type": "Point",
-                    "coordinates": [pt["longitude"], pt["latitude"], pt.get("altitude")],
+                    "coordinates": [
+                        pt["longitude"],
+                        pt["latitude"],
+                        pt.get("altitude"),
+                    ],
                 },
-                "properties": {"time": pt["time"].isoformat(), "speed": pt.get("speed")},
+                "properties": {
+                    "time": pt["time"].isoformat(),
+                    "speed": pt.get("speed"),
+                },
             }
         )
     return {"type": "FeatureCollection", "features": features}

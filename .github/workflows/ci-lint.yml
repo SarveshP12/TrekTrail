@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install black isort ruff
-      - run: black --check .
+      - run: black --check --diff .
       - run: isort --check-only .
       - run: ruff check .
 

@@ -72,8 +72,18 @@ class TestComputeTrekStats:
         t2 = datetime(2026, 1, 1, 10, 1, 0, tzinfo=timezone.utc)  # 1 minute later
         stats = compute_trek_stats(
             [
-                {"latitude": 28.6139, "longitude": 77.2090, "altitude": 200, "time": t1},
-                {"latitude": 28.6140, "longitude": 77.2091, "altitude": 210, "time": t2},
+                {
+                    "latitude": 28.6139,
+                    "longitude": 77.2090,
+                    "altitude": 200,
+                    "time": t1,
+                },
+                {
+                    "latitude": 28.6140,
+                    "longitude": 77.2091,
+                    "altitude": 210,
+                    "time": t2,
+                },
             ]
         )
         assert stats["distance_2d"] > 0
