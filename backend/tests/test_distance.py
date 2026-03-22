@@ -1,10 +1,6 @@
-import pytest
-from app.utils.distance import (
-    compute_trek_stats,
-    distance_3d,
-    haversine_2d,
-)
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
+
+from app.utils.distance import compute_trek_stats, distance_3d, haversine_2d
 
 
 class TestHaversine2D:

@@ -2,7 +2,6 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import jwt
-
 from app.config import settings
 
 

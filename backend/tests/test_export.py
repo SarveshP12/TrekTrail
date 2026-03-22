@@ -1,6 +1,6 @@
-import pytest
-from app.services.export_service import generate_gpx, generate_kml
 from datetime import datetime, timezone
+
+from app.services.export_service import generate_gpx, generate_kml
 
 
 class TestGPXExport:

@@ -1,8 +1,7 @@
 import pytest
-from pydantic import ValidationError
-
-from app.schemas.user import UserCreate
 from app.schemas.gps_point import GPSPointCreate
+from app.schemas.user import UserCreate
+from pydantic import ValidationError
 
 
 def test_user_create_valid():
