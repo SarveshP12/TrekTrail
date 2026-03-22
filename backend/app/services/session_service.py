@@ -40,7 +40,7 @@ async def end_session(
 
     session.end_time = datetime.now(timezone.utc)
     session.status = "completed"
-    
+
     # Ensure both are timezone-aware for duration calculation (SQLite fix)
     start = session.start_time
     if start.tzinfo is None:
@@ -48,7 +48,7 @@ async def end_session(
     end = session.end_time
     if end.tzinfo is None:
         end = end.replace(tzinfo=timezone.utc)
-        
+
     session.duration_seconds = int((end - start).total_seconds())
 
     # Compute stats from GPS points

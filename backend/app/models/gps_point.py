@@ -29,6 +29,4 @@ class GPSTrackPoint(Base):
     filter_longitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     filter_altitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
 
-    __table_args__ = (
-        Index("idx_gps_session_time", "session_id", "time"),
-    )
+    __table_args__ = (Index("idx_gps_session_time", "session_id", "time"),)

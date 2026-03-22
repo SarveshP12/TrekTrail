@@ -84,9 +84,7 @@ def compute_trek_stats(points: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def _compute_difficulty(
-    distance_3d: float, elevation_gain: float, altitudes: list[float]
-) -> str:
+def _compute_difficulty(distance_3d: float, elevation_gain: float, altitudes: list[float]) -> str:
     score = 0
     # Distance factor
     if distance_3d > 20000:

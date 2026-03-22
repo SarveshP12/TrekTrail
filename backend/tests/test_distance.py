@@ -55,19 +55,27 @@ class TestComputeTrekStats:
         assert stats["difficulty_rating"] == "Easy"
 
     def test_single_point(self):
-        stats = compute_trek_stats([
-            {"latitude": 28.6139, "longitude": 77.2090, "altitude": 200,
-             "time": datetime(2026, 1, 1, tzinfo=timezone.utc)}
-        ])
+        stats = compute_trek_stats(
+            [
+                {
+                    "latitude": 28.6139,
+                    "longitude": 77.2090,
+                    "altitude": 200,
+                    "time": datetime(2026, 1, 1, tzinfo=timezone.utc),
+                }
+            ]
+        )
         assert stats["distance_2d"] == 0
 
     def test_two_points_computes_distance(self):
         t1 = datetime(2026, 1, 1, 10, 0, 0, tzinfo=timezone.utc)
         t2 = datetime(2026, 1, 1, 10, 1, 0, tzinfo=timezone.utc)  # 1 minute later
-        stats = compute_trek_stats([
-            {"latitude": 28.6139, "longitude": 77.2090, "altitude": 200, "time": t1},
-            {"latitude": 28.6140, "longitude": 77.2091, "altitude": 210, "time": t2},
-        ])
+        stats = compute_trek_stats(
+            [
+                {"latitude": 28.6139, "longitude": 77.2090, "altitude": 200, "time": t1},
+                {"latitude": 28.6140, "longitude": 77.2091, "altitude": 210, "time": t2},
+            ]
+        )
         assert stats["distance_2d"] > 0
         assert stats["distance_3d"] > stats["distance_2d"]
         assert stats["elevation_gain"] == 10.0
@@ -78,31 +86,53 @@ class TestComputeTrekStats:
 
     def test_elevation_gain_and_loss(self):
         base_time = datetime(2026, 1, 1, 10, 0, 0, tzinfo=timezone.utc)
-        stats = compute_trek_stats([
-            {"latitude": 0, "longitude": 0, "altitude": 100, "time": base_time},
-            {"latitude": 0, "longitude": 0.001, "altitude": 200,
-             "time": base_time + timedelta(minutes=1)},
-            {"latitude": 0, "longitude": 0.002, "altitude": 150,
-             "time": base_time + timedelta(minutes=2)},
-        ])
+        stats = compute_trek_stats(
+            [
+                {"latitude": 0, "longitude": 0, "altitude": 100, "time": base_time},
+                {
+                    "latitude": 0,
+                    "longitude": 0.001,
+                    "altitude": 200,
+                    "time": base_time + timedelta(minutes=1),
+                },
+                {
+                    "latitude": 0,
+                    "longitude": 0.002,
+                    "altitude": 150,
+                    "time": base_time + timedelta(minutes=2),
+                },
+            ]
+        )
         assert stats["elevation_gain"] == 100.0
         assert stats["elevation_loss"] == 50.0
 
     def test_difficulty_easy(self):
         base_time = datetime(2026, 1, 1, 10, 0, 0, tzinfo=timezone.utc)
-        stats = compute_trek_stats([
-            {"latitude": 0, "longitude": 0, "altitude": 100, "time": base_time},
-            {"latitude": 0, "longitude": 0.001, "altitude": 100,
-             "time": base_time + timedelta(minutes=1)},
-        ])
+        stats = compute_trek_stats(
+            [
+                {"latitude": 0, "longitude": 0, "altitude": 100, "time": base_time},
+                {
+                    "latitude": 0,
+                    "longitude": 0.001,
+                    "altitude": 100,
+                    "time": base_time + timedelta(minutes=1),
+                },
+            ]
+        )
         assert stats["difficulty_rating"] == "Easy"
 
     def test_null_altitude_handled(self):
         base_time = datetime(2026, 1, 1, 10, 0, 0, tzinfo=timezone.utc)
-        stats = compute_trek_stats([
-            {"latitude": 0, "longitude": 0, "altitude": None, "time": base_time},
-            {"latitude": 0, "longitude": 0.001, "altitude": None,
-             "time": base_time + timedelta(minutes=1)},
-        ])
+        stats = compute_trek_stats(
+            [
+                {"latitude": 0, "longitude": 0, "altitude": None, "time": base_time},
+                {
+                    "latitude": 0,
+                    "longitude": 0.001,
+                    "altitude": None,
+                    "time": base_time + timedelta(minutes=1),
+                },
+            ]
+        )
         assert stats["distance_2d"] > 0
         assert stats["max_altitude"] is None

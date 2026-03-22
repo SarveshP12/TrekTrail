@@ -67,9 +67,11 @@ async def health_check():
     except Exception:
         redis_status = "unhealthy"
 
-    overall = "healthy" if all(
-        s == "healthy" for s in [db_status, ts_status, redis_status]
-    ) else "degraded"
+    overall = (
+        "healthy"
+        if all(s == "healthy" for s in [db_status, ts_status, redis_status])
+        else "degraded"
+    )
 
     return HealthResponse(
         status=overall,

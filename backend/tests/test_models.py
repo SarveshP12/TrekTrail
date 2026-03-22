@@ -16,6 +16,7 @@ from app.models.group_member import GroupMember
 # Base and Mixin Tests
 # ---------------------------------------------------------------------------
 
+
 class TestBase:
     """Verify the declarative base is correctly set up."""
 
@@ -24,13 +25,21 @@ class TestBase:
 
     def test_base_metadata_has_tables(self):
         table_names = set(Base.metadata.tables.keys())
-        expected = {"users", "trek_sessions", "waypoints", "group_sessions", "group_members", "gps_track_points"}
+        expected = {
+            "users",
+            "trek_sessions",
+            "waypoints",
+            "group_sessions",
+            "group_members",
+            "gps_track_points",
+        }
         assert expected.issubset(table_names)
 
 
 # ---------------------------------------------------------------------------
 # User Model Tests
 # ---------------------------------------------------------------------------
+
 
 class TestUserModel:
     """Verify User table schema and column constraints."""
@@ -40,9 +49,17 @@ class TestUserModel:
 
     def test_columns_exist(self):
         columns = {c.name for c in User.__table__.columns}
-        expected = {"id", "email", "display_name", "password_hash",
-                    "avatar_url", "preferences", "subscription_tier",
-                    "created_at", "updated_at"}
+        expected = {
+            "id",
+            "email",
+            "display_name",
+            "password_hash",
+            "avatar_url",
+            "preferences",
+            "subscription_tier",
+            "created_at",
+            "updated_at",
+        }
         assert expected == columns
 
     def test_email_is_unique_and_indexed(self):
@@ -73,17 +90,34 @@ class TestUserModel:
 # TrekSession Model Tests
 # ---------------------------------------------------------------------------
 
+
 class TestTrekSessionModel:
     def test_tablename(self):
         assert TrekSession.__tablename__ == "trek_sessions"
 
     def test_columns_exist(self):
         columns = {c.name for c in TrekSession.__table__.columns}
-        expected = {"id", "user_id", "start_time", "end_time", "activity_type",
-                    "status", "distance_2d", "distance_3d", "elevation_gain",
-                    "elevation_loss", "max_altitude", "min_altitude",
-                    "duration_seconds", "calories_burned", "difficulty_rating",
-                    "avg_speed", "avg_pace", "created_at", "updated_at"}
+        expected = {
+            "id",
+            "user_id",
+            "start_time",
+            "end_time",
+            "activity_type",
+            "status",
+            "distance_2d",
+            "distance_3d",
+            "elevation_gain",
+            "elevation_loss",
+            "max_altitude",
+            "min_altitude",
+            "duration_seconds",
+            "calories_burned",
+            "difficulty_rating",
+            "avg_speed",
+            "avg_pace",
+            "created_at",
+            "updated_at",
+        }
         assert expected == columns
 
     def test_user_id_indexed(self):
@@ -91,10 +125,20 @@ class TestTrekSessionModel:
         assert col.index is True
 
     def test_nullable_stats_columns(self):
-        nullable_cols = ["distance_2d", "distance_3d", "elevation_gain",
-                         "elevation_loss", "max_altitude", "min_altitude",
-                         "duration_seconds", "calories_burned", "difficulty_rating",
-                         "avg_speed", "avg_pace", "end_time"]
+        nullable_cols = [
+            "distance_2d",
+            "distance_3d",
+            "elevation_gain",
+            "elevation_loss",
+            "max_altitude",
+            "min_altitude",
+            "duration_seconds",
+            "calories_burned",
+            "difficulty_rating",
+            "avg_speed",
+            "avg_pace",
+            "end_time",
+        ]
         for name in nullable_cols:
             col = TrekSession.__table__.c[name]
             assert col.nullable is True, f"{name} should be nullable"
@@ -113,14 +157,25 @@ class TestTrekSessionModel:
 # Waypoint Model Tests
 # ---------------------------------------------------------------------------
 
+
 class TestWaypointModel:
     def test_tablename(self):
         assert Waypoint.__tablename__ == "waypoints"
 
     def test_columns_exist(self):
         columns = {c.name for c in Waypoint.__table__.columns}
-        expected = {"id", "session_id", "latitude", "longitude", "altitude",
-                    "label", "description", "photo_url", "created_at", "updated_at"}
+        expected = {
+            "id",
+            "session_id",
+            "latitude",
+            "longitude",
+            "altitude",
+            "label",
+            "description",
+            "photo_url",
+            "created_at",
+            "updated_at",
+        }
         assert expected == columns
 
     def test_session_id_indexed(self):
@@ -140,15 +195,27 @@ class TestWaypointModel:
 # GPSTrackPoint Model Tests
 # ---------------------------------------------------------------------------
 
+
 class TestGPSTrackPointModel:
     def test_tablename(self):
         assert GPSTrackPoint.__tablename__ == "gps_track_points"
 
     def test_columns_exist(self):
         columns = {c.name for c in GPSTrackPoint.__table__.columns}
-        expected = {"time", "session_id", "latitude", "longitude", "altitude",
-                    "accuracy", "speed", "bearing", "is_filtered",
-                    "filter_latitude", "filter_longitude", "filter_altitude"}
+        expected = {
+            "time",
+            "session_id",
+            "latitude",
+            "longitude",
+            "altitude",
+            "accuracy",
+            "speed",
+            "bearing",
+            "is_filtered",
+            "filter_latitude",
+            "filter_longitude",
+            "filter_altitude",
+        }
         assert expected == columns
 
     def test_composite_primary_key(self):
@@ -168,14 +235,14 @@ class TestGPSTrackPointModel:
 # GroupSession Model Tests
 # ---------------------------------------------------------------------------
 
+
 class TestGroupSessionModel:
     def test_tablename(self):
         assert GroupSession.__tablename__ == "group_sessions"
 
     def test_columns_exist(self):
         columns = {c.name for c in GroupSession.__table__.columns}
-        expected = {"id", "creator_id", "name", "join_code", "status",
-                    "created_at", "updated_at"}
+        expected = {"id", "creator_id", "name", "join_code", "status", "created_at", "updated_at"}
         assert expected == columns
 
     def test_join_code_unique_and_indexed(self):
@@ -196,6 +263,7 @@ class TestGroupSessionModel:
 # ---------------------------------------------------------------------------
 # GroupMember Model Tests
 # ---------------------------------------------------------------------------
+
 
 class TestGroupMemberModel:
     def test_tablename(self):
