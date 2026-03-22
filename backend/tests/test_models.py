@@ -11,7 +11,6 @@ from app.models.gps_point import GPSTrackPoint
 from app.models.group_session import GroupSession
 from app.models.group_member import GroupMember
 
-
 # ---------------------------------------------------------------------------
 # Base and Mixin Tests
 # ---------------------------------------------------------------------------
