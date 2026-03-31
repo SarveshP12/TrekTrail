@@ -9,9 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def start_session(
-    db: AsyncSession, user_id: UUID, activity_type: str
-) -> TrekSession:
+async def start_session(db: AsyncSession, user_id: UUID, activity_type: str) -> TrekSession:
     session = TrekSession(
         user_id=user_id,
         start_time=datetime.now(timezone.utc),

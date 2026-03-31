@@ -22,6 +22,7 @@ async def create_user(db: AsyncSession, data: UserCreate) -> User:
     db.add(user)
     await db.flush()
     await db.refresh(user)
+    await db.commit()
     return user
 
 
