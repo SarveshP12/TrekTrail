@@ -15,6 +15,8 @@ export async function initDatabase(db: SQLiteDatabase) {
       end_time INTEGER,
       duration INTEGER DEFAULT 0,
       distance REAL DEFAULT 0,
+      elevation_gain REAL DEFAULT 0,
+      elevation_loss REAL DEFAULT 0,
       synced INTEGER DEFAULT 0
     );
     CREATE TABLE IF NOT EXISTS gps_points (
@@ -25,6 +27,7 @@ export async function initDatabase(db: SQLiteDatabase) {
       alt REAL,
       accuracy REAL,
       speed REAL,
+      heading REAL,
       timestamp INTEGER NOT NULL,
       synced INTEGER DEFAULT 0,
       FOREIGN KEY(session_id) REFERENCES sessions(id)

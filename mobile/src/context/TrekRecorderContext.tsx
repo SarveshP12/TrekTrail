@@ -219,8 +219,18 @@ export function TrekRecorderProvider({
     uploader.current.stop();
     stopStatsPolling();
 
+    const finalSnapshot = statsEngine.current.getStats();
+
     if (sid) {
         try {
+            // Persist final stats to local DB
+            await gpsRepo.updateSessionStats(
+              sid,
+              finalSnapshot.durationMs,
+              finalSnapshot.distance3D,
+              finalSnapshot.elevationGain,
+              finalSnapshot.elevationLoss,
+            );
             await gpsRepo.endSession(sid, Date.now());
             console.log(`Local session ended: ${sid}`);
         } catch(e) {
@@ -228,7 +238,6 @@ export function TrekRecorderProvider({
         }
     }
 
-    const finalSnapshot = statsEngine.current.getStats();
     setStats({
       ...finalSnapshot,
       state: 'idle',

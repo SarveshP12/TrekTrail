@@ -35,9 +35,8 @@ export default function SignIn() {
       if (response.ok) {
         // Success
         console.log("Login successful:", data);
-        Alert.alert("Success", "Logged in successfully!");
-        // Here you would store the token in AsyncStorage/SecureStore
-        // router.replace("/(tabs)/home"); // Or wherever you navigate after login
+          // Here you would store the token in AsyncStorage/SecureStore
+          router.replace("/(tabs)/home");
       } else {
         Alert.alert("Login Failed", data.detail || "Invalid credentials");
       }

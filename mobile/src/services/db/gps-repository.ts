@@ -8,6 +8,8 @@ export interface TrekSession {
   endTime?: number | null;
   duration: number;
   distance: number;
+  elevationGain: number;
+  elevationLoss: number;
   synced: boolean;
 }
 
@@ -19,18 +21,23 @@ export class GPSRepository {
     await initDatabase(this.db);
   }
 
-  async createSession(sessionId: string, startTime: number) {
+  private async ensureDb(): Promise<SQLiteDatabase> {
     if (!this.db) await this.init();
-    await this.db!.runAsync(
-      'INSERT INTO sessions (id, start_time, end_time, duration, distance, synced) VALUES (?, ?, ?, ?, ?, ?)',
-      [sessionId, startTime, null, 0, 0, 0]
+    return this.db!;
+  }
+
+  async createSession(sessionId: string, startTime: number) {
+    const db = await this.ensureDb();
+    await db.runAsync(
+      'INSERT INTO sessions (id, start_time, end_time, duration, distance, elevation_gain, elevation_loss, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [sessionId, startTime, null, 0, 0, 0, 0, 0]
     );
   }
 
   async addPoint(sessionId: string, reading: GPSReading) {
-    if (!this.db) await this.init();
-    await this.db!.runAsync(
-      'INSERT INTO gps_points (session_id, lat, lon, alt, accuracy, speed, timestamp, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    const db = await this.ensureDb();
+    await db.runAsync(
+      'INSERT INTO gps_points (session_id, lat, lon, alt, accuracy, speed, heading, timestamp, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         sessionId,
         reading.latitude,
@@ -38,24 +45,31 @@ export class GPSRepository {
         reading.altitude,
         reading.accuracy,
         reading.speed,
+        reading.heading,
         reading.timestamp,
         0
       ]
     );
   }
 
-  async updateSessionStats(sessionId: string, duration: number, distance: number) {
-    if (!this.db) await this.init();
-    await this.db!.runAsync(
-      'UPDATE sessions SET duration = ?, distance = ? WHERE id = ?',
-      [duration, distance, sessionId]
+  async updateSessionStats(
+    sessionId: string,
+    duration: number,
+    distance: number,
+    elevationGain: number = 0,
+    elevationLoss: number = 0,
+  ) {
+    const db = await this.ensureDb();
+    await db.runAsync(
+      'UPDATE sessions SET duration = ?, distance = ?, elevation_gain = ?, elevation_loss = ? WHERE id = ?',
+      [duration, distance, elevationGain, elevationLoss, sessionId]
     );
   }
 
   async getActiveSession(): Promise<string | null> {
-    if (!this.db) await this.init();
+    const db = await this.ensureDb();
     try {
-      const result = await this.db!.getFirstAsync<{ id: string }>(
+      const result = await db.getFirstAsync<{ id: string }>(
         'SELECT id FROM sessions WHERE end_time IS NULL ORDER BY start_time DESC LIMIT 1'
       );
       return result?.id || null;
@@ -66,29 +80,103 @@ export class GPSRepository {
   }
 
   async endSession(sessionId: string, endTime: number) {
-    if (!this.db) await this.init();
-    await this.db!.runAsync(
+    const db = await this.ensureDb();
+    await db.runAsync(
       'UPDATE sessions SET end_time = ? WHERE id = ?',
       [endTime, sessionId]
     );
   }
 
+  async getSession(sessionId: string): Promise<TrekSession | null> {
+    const db = await this.ensureDb();
+    const row = await db.getFirstAsync<any>(
+      'SELECT * FROM sessions WHERE id = ?',
+      [sessionId]
+    );
+    if (!row) return null;
+    return {
+      id: row.id,
+      startTime: row.start_time,
+      endTime: row.end_time,
+      duration: row.duration,
+      distance: row.distance,
+      elevationGain: row.elevation_gain ?? 0,
+      elevationLoss: row.elevation_loss ?? 0,
+      synced: !!row.synced,
+    };
+  }
+
+  async getAllSessions(): Promise<TrekSession[]> {
+    const db = await this.ensureDb();
+    const rows = await db.getAllAsync<any>(
+      'SELECT * FROM sessions ORDER BY start_time DESC'
+    );
+    return rows.map((row: any) => ({
+      id: row.id,
+      startTime: row.start_time,
+      endTime: row.end_time,
+      duration: row.duration,
+      distance: row.distance,
+      elevationGain: row.elevation_gain ?? 0,
+      elevationLoss: row.elevation_loss ?? 0,
+      synced: !!row.synced,
+    }));
+  }
+
   async getSessionPoints(sessionId: string): Promise<GPSReading[]> {
-    if (!this.db) await this.init();
-    const rows: any[] = await this.db!.getAllAsync(
-      'SELECT lat as latitude, lon as longitude, alt as altitude, accuracy, speed, timestamp FROM gps_points WHERE session_id = ? ORDER BY timestamp ASC',
+    const db = await this.ensureDb();
+    const rows: any[] = await db.getAllAsync(
+      'SELECT lat as latitude, lon as longitude, alt as altitude, accuracy, speed, heading, timestamp FROM gps_points WHERE session_id = ? ORDER BY timestamp ASC',
       [sessionId]
     );
     return rows;
   }
 
-  async getUnsyncedPoints(limit: number = 50): Promise<any[]> {
-    if (!this.db) await this.init();
-    const rows = await this.db!.getAllAsync(
-      'SELECT * FROM gps_points WHERE synced = 0 LIMIT ?',
+  async getPointCount(sessionId: string): Promise<number> {
+    const db = await this.ensureDb();
+    const result = await db.getFirstAsync<{ count: number }>(
+      'SELECT COUNT(*) as count FROM gps_points WHERE session_id = ?',
+      [sessionId]
+    );
+    return result?.count ?? 0;
+  }
+
+  async getUnsyncedPoints(limit: number = 100): Promise<any[]> {
+    const db = await this.ensureDb();
+    const rows = await db.getAllAsync(
+      'SELECT id, session_id, lat, lon, alt, accuracy, speed, heading, timestamp FROM gps_points WHERE synced = 0 ORDER BY timestamp ASC LIMIT ?',
       [limit]
     );
     return rows;
+  }
+
+  /** Mark specific point IDs as synced after successful upload. */
+  async markPointsSynced(pointIds: number[]): Promise<void> {
+    if (pointIds.length === 0) return;
+    const db = await this.ensureDb();
+    const placeholders = pointIds.map(() => '?').join(',');
+    await db.runAsync(
+      `UPDATE gps_points SET synced = 1 WHERE id IN (${placeholders})`,
+      pointIds
+    );
+  }
+
+  /** Mark an entire session as synced. */
+  async markSessionSynced(sessionId: string): Promise<void> {
+    const db = await this.ensureDb();
+    await db.runAsync(
+      'UPDATE sessions SET synced = 1 WHERE id = ?',
+      [sessionId]
+    );
+  }
+
+  /** Delete all points for a session (for cleanup after full sync). */
+  async deleteSessionPoints(sessionId: string): Promise<void> {
+    const db = await this.ensureDb();
+    await db.runAsync(
+      'DELETE FROM gps_points WHERE session_id = ?',
+      [sessionId]
+    );
   }
 }
 

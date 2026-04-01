@@ -23,5 +23,7 @@ module.exports = {
     '^expo-location$': '<rootDir>/src/__tests__/__mocks__/expo-location.ts',
     '^expo-task-manager$': '<rootDir>/src/__tests__/__mocks__/expo-task-manager.ts',
     '^@react-native-community/netinfo$': '<rootDir>/src/__tests__/__mocks__/netinfo.ts',
+    '^eventemitter3$': '<rootDir>/src/__tests__/__mocks__/eventemitter3.ts',
+    '^expo-sqlite$': '<rootDir>/src/__tests__/__mocks__/expo-sqlite.ts',
   },
 };
