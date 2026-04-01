@@ -35,4 +35,16 @@ export async function initDatabase(db: SQLiteDatabase) {
     CREATE INDEX IF NOT EXISTS idx_gps_points_session ON gps_points(session_id);
     CREATE INDEX IF NOT EXISTS idx_gps_points_synced ON gps_points(synced);
   `);
+
+  // Simple migrations for dev environment
+  try {
+    await db.execAsync('ALTER TABLE sessions ADD COLUMN elevation_gain REAL DEFAULT 0;');
+  } catch (e) {
+    // Ignore if column already exists
+  }
+  try {
+    await db.execAsync('ALTER TABLE sessions ADD COLUMN elevation_loss REAL DEFAULT 0;');
+  } catch (e) {
+    // Ignore if column already exists
+  }
 }
