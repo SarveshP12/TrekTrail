@@ -20,6 +20,8 @@ import Animated, {
 
 import { PermissionGate } from '../src/components/PermissionGate';
 import { TrekHUD } from '../src/components/TrekHUD';
+import { TrekMap } from '../src/components/map/TrekMap';
+import { TrekControls } from '../src/components/TrekControls';
 import { useTrekRecorder, TrekState } from '../src/context/TrekRecorderContext';
 
 export default function TrekScreen() {
@@ -153,45 +155,19 @@ function TrekContent() {
           ) : (
             /* Recording / Paused state */
             <View style={styles.activeContainer}>
-              {/* Map area placeholder — will be replaced with actual map in Phase 5 */}
-              <View style={styles.mapPlaceholder}>
-                <Ionicons name="map" size={64} color="rgba(255,255,255,0.15)" />
-                <Text style={styles.mapPlaceholderText}>
-                  Map view coming in Phase 5
-                </Text>
+              {/* Map view from Phase 5 */}
+              <View style={styles.mapContainer}>
+                <TrekMap routeCoordinates={[]} followUser />
               </View>
 
               {/* Controls */}
-              <View style={styles.controlsRow}>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.controlButton,
-                    styles.pauseButton,
-                    pressed && { opacity: 0.85 },
-                  ]}
-                  onPress={handlePauseResume}
-                >
-                  <Ionicons
-                    name={state === 'recording' ? 'pause' : 'play'}
-                    size={28}
-                    color="#FFF"
-                  />
-                  <Text style={styles.controlButtonText}>
-                    {state === 'recording' ? 'Pause' : 'Resume'}
-                  </Text>
-                </Pressable>
-
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.controlButton,
-                    styles.stopButton,
-                    pressed && { opacity: 0.85 },
-                  ]}
-                  onPress={handleStop}
-                >
-                  <Ionicons name="stop" size={28} color="#FFF" />
-                  <Text style={styles.controlButtonText}>Stop</Text>
-                </Pressable>
+              <View style={styles.controlsRowWrapper}>
+                <TrekControls
+                  isRecording={state === 'recording'}
+                  onPause={handlePauseResume}
+                  onResume={handlePauseResume}
+                  onStop={handleStop}
+                />
               </View>
             </View>
           )}
@@ -294,54 +270,20 @@ const styles = StyleSheet.create({
   activeContainer: {
     flex: 1,
   },
-  mapPlaceholder: {
+  mapContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.03)',
     margin: 16,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    overflow: 'hidden',
   },
-  mapPlaceholderText: {
-    color: 'rgba(255,255,255,0.2)',
-    fontSize: 13,
-    marginTop: 8,
-  },
-  controlsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 16,
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-  },
-  controlButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 28,
-    paddingVertical: 14,
-    borderRadius: 16,
-    gap: 8,
-  },
-  pauseButton: {
-    backgroundColor: '#F59E0B',
-    flex: 1,
-  },
-  stopButton: {
-    backgroundColor: '#EF4444',
-    flex: 1,
-  },
-  controlButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '700',
+  controlsRowWrapper: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
   // ── HUD ──
   hudWrapper: {
     position: 'absolute',
-    bottom: 0,
+    top: 100, // Move HUD above map and controls
     left: 0,
     right: 0,
   },
