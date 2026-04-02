@@ -12,38 +12,63 @@ jobs:
     defaults:
       run:
         working-directory: backend
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install black isort ruff
-      - run: black --check --diff .
-      - run: isort --check-only .
-      - run: ruff check .
+
+      - name: Install dependencies
+        run: pip install black ruff
+
+      - name: Run Black (format check)
+        run: black --check --diff .
+
+      - name: Run Ruff (lint + imports)
+        run: ruff check .
 
   mobile-lint:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: mobile
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: npm ci
-      - run: npm run lint
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
 
   realtime-lint:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: realtime
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: npm ci
-      - run: npm run lint
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
