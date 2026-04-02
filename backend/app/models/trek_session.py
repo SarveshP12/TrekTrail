@@ -2,10 +2,11 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 
 class TrekSession(Base, UUIDPrimaryKeyMixin, TimestampMixin):
@@ -14,9 +15,15 @@ class TrekSession(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
     )
-    start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    end_time: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-    activity_type: Mapped[str] = mapped_column(String(30), default="TREKKING", nullable=False)
+    start_time: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    end_time: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    activity_type: Mapped[str] = mapped_column(
+        String(30), default="TREKKING", nullable=False
+    )
     status: Mapped[str] = mapped_column(String(20), default="active", nullable=False)
 
     # Computed stats (populated on session end)

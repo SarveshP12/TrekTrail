@@ -6,9 +6,9 @@ requires-python = ">=3.11"
 # -------------------------------
 # BLACK (Code Formatter)
 # -------------------------------
-[tool.black]
-line-length = 100
-target-version = ["py311"]
+[tool.isort]
+profile = "black"
+line_length = 88
 
 # -------------------------------
 # RUFF (Linter + Import checks)

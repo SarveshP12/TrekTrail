@@ -1,15 +1,18 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.exceptions import ForbiddenException, NotFoundException
 from app.models.trek_session import TrekSession
 from app.services.gps_service import get_session_points
 from app.utils.distance import compute_trek_stats
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def start_session(db: AsyncSession, user_id: UUID, activity_type: str) -> TrekSession:
+async def start_session(
+    db: AsyncSession, user_id: UUID, activity_type: str
+) -> TrekSession:
     session = TrekSession(
         user_id=user_id,
         start_time=datetime.now(timezone.utc),
