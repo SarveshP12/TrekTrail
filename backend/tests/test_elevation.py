@@ -26,9 +26,7 @@ async def test_elevation_lookup_cached(
 
 
 @pytest.mark.asyncio
-async def test_elevation_lookup_invalid_coords(
-    client: AsyncClient, test_user, auth_headers
-):
+async def test_elevation_lookup_invalid_coords(client: AsyncClient, test_user, auth_headers):
     response = await client.get(
         "/elevation/lookup?lat=91&lng=77",
         headers=auth_headers,

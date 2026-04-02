@@ -7,9 +7,7 @@ from app.models.gps_point import GPSTrackPoint
 from app.schemas.gps_point import GPSPointCreate
 
 
-async def store_gps_points(
-    db: AsyncSession, session_id: UUID, points: list[GPSPointCreate]
-) -> int:
+async def store_gps_points(db: AsyncSession, session_id: UUID, points: list[GPSPointCreate]) -> int:
     """Store a batch of GPS track points in TimescaleDB."""
     for pt in points:
         track_point = GPSTrackPoint(

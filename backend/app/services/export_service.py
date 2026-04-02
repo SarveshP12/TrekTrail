@@ -13,18 +13,16 @@ def generate_gpx(session_name: str, points: list[dict[str, Any]]) -> bytes:
 
     trkseg = SubElement(trk, "trkseg")
     for pt in points:
-        trkpt = SubElement(
-            trkseg, "trkpt", lat=str(pt["latitude"]), lon=str(pt["longitude"])
-        )
+        trkpt = SubElement(trkseg, "trkpt", lat=str(pt["latitude"]), lon=str(pt["longitude"]))
         if pt.get("altitude") is not None:
             ele = SubElement(trkpt, "ele")
             ele.text = str(pt["altitude"])
         time_el = SubElement(trkpt, "time")
         time_el.text = pt["time"].isoformat()
 
-    return b'<?xml version="1.0" encoding="UTF-8"?>\n' + tostring(
-        gpx, encoding="unicode"
-    ).encode("utf-8")
+    return b'<?xml version="1.0" encoding="UTF-8"?>\n' + tostring(gpx, encoding="unicode").encode(
+        "utf-8"
+    )
 
 
 def generate_kml(session_name: str, points: list[dict[str, Any]]) -> bytes:
@@ -51,6 +49,6 @@ def generate_kml(session_name: str, points: list[dict[str, Any]]) -> bytes:
         coord_strings.append(f"{pt['longitude']},{pt['latitude']},{alt}")
     coordinates.text = " ".join(coord_strings)
 
-    return b'<?xml version="1.0" encoding="UTF-8"?>\n' + tostring(
-        kml, encoding="unicode"
-    ).encode("utf-8")
+    return b'<?xml version="1.0" encoding="UTF-8"?>\n' + tostring(kml, encoding="unicode").encode(
+        "utf-8"
+    )
