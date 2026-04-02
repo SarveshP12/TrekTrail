@@ -1,10 +1,9 @@
 from uuid import UUID
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models.gps_point import GPSTrackPoint
 from app.schemas.gps_point import GPSPointCreate
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def store_gps_points(db: AsyncSession, session_id: UUID, points: list[GPSPointCreate]) -> int:

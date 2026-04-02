@@ -1,10 +1,9 @@
 from typing import Optional
 
+from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 from sqlalchemy import String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 
 class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):

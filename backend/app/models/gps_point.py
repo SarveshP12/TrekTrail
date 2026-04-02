@@ -2,11 +2,10 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
+from app.models.base import Base
 from sqlalchemy import Boolean, DateTime, Float, Index
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
-
-from app.models.base import Base
 
 
 class GPSTrackPoint(Base):
