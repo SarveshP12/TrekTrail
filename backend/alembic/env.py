@@ -8,13 +8,6 @@ from alembic import context
 from app.config import settings
 
 # Import all models so Alembic sees them for autogenerate
-from app.models import (
-    group_member,  # noqa: F401
-    group_session,  # noqa: F401
-    trek_session,  # noqa: F401
-    user,  # noqa: F401
-    waypoint,  # noqa: F401
-)
 from app.models.base import Base
 
 config = context.config
