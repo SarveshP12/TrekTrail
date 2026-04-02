@@ -5,7 +5,9 @@ from pydantic import ValidationError
 
 
 def test_user_create_valid():
-    user = UserCreate(email="test@example.com", display_name="Hiker", password="securepass123")
+    user = UserCreate(
+        email="test@example.com", display_name="Hiker", password="securepass123"
+    )
     assert user.email == "test@example.com"
     assert user.display_name == "Hiker"
 
@@ -21,7 +23,9 @@ def test_user_create_short_password():
 
 
 def test_gps_point_valid():
-    point = GPSPointCreate(time="2025-03-15T10:30:00Z", latitude=18.5204, longitude=73.8567)
+    point = GPSPointCreate(
+        time="2025-03-15T10:30:00Z", latitude=18.5204, longitude=73.8567
+    )
     assert point.latitude == 18.5204
     assert point.longitude == 73.8567
 

@@ -5,13 +5,8 @@ from alembic import context
 from app.config import settings
 
 # Import all models so Alembic sees them for autogenerate
-from app.models import (
-    group_member,
-    group_session,  # noqa: F401
-    trek_session,
-    user,
-    waypoint,
-)
+from app.models import group_session  # noqa: F401
+from app.models import group_member, trek_session, user, waypoint
 from app.models.base import Base
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config

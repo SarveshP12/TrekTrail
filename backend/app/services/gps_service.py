@@ -6,7 +6,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def store_gps_points(db: AsyncSession, session_id: UUID, points: list[GPSPointCreate]) -> int:
+async def store_gps_points(
+    db: AsyncSession, session_id: UUID, points: list[GPSPointCreate]
+) -> int:
     """Store a batch of GPS track points in TimescaleDB."""
     for pt in points:
         track_point = GPSTrackPoint(

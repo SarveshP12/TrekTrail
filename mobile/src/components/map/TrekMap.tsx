@@ -36,4 +36,4 @@ export function TrekMap({ routeCoordinates = [], followUser = true, children }: 
 
 const styles = StyleSheet.create({
   container: { flex: 1, overflow: 'hidden', borderRadius: 20 },
-  map: { flex: 1 },
+  map: { flex: 1 },});
