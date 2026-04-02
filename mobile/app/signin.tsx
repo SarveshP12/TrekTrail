@@ -101,7 +101,7 @@ export default function SignIn() {
       </Pressable>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Don't have an account? </Text>
+        <Text style={styles.footerText}>Don&apos;t have an account? </Text>
         <Pressable onPress={() => router.push("/register")}>
           <Text style={styles.linkText}>Sign Up</Text>
         </Pressable>

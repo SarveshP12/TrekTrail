@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as Location from 'expo-location';
-import { Alert, Linking, Platform } from 'react-native';
+import { Alert, Linking } from 'react-native';
 
 export type PermissionLevel = 'none' | 'foreground' | 'background';
 

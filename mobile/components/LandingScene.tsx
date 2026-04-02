@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+/* eslint-disable react/no-unknown-property */
+import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Mesh } from "three";
 

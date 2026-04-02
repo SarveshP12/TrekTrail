@@ -90,7 +90,7 @@ export function TrekRecorderProvider({
     return () => {
       try {
         connectivityMonitor.stop();
-      } catch (e) {
+      } catch {
         // ignore cleanup errors
       }
     };

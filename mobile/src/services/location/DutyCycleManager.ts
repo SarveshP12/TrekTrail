@@ -1,5 +1,4 @@
-import { GPSReading } from './LocationProvider';
-import { locationProvider } from './LocationProvider';
+import { GPSReading , locationProvider } from './LocationProvider';
 
 export type MotionState = 'stationary' | 'walking' | 'moving_fast';
 

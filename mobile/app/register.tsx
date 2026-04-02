@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator, ImageBackground } from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";

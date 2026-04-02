@@ -1,8 +1,9 @@
-import { DutyCycleManager, MotionState } from '../services/location/DutyCycleManager';
+import { DutyCycleManager } from '../services/location/DutyCycleManager';
 import { GPSReading } from '../services/location/LocationProvider';
 
 // Mock the locationProvider to capture setInterval calls
 jest.mock('../services/location/LocationProvider', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { EventEmitter } = require('node:events');
 
   class MockLocationProvider extends EventEmitter {
@@ -24,6 +25,7 @@ jest.mock('../services/location/LocationProvider', () => {
   };
 });
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { locationProvider } = require('../services/location/LocationProvider');
 
 function makeReading(speed: number | null): GPSReading {

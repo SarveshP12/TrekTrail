@@ -1,4 +1,4 @@
-import { TrekStatsEngine, TrekStatsSnapshot } from '../services/tracking/TrekStatsEngine';
+import { TrekStatsEngine } from '../services/tracking/TrekStatsEngine';
 import { GPSReading } from '../services/location/LocationProvider';
 
 function makeReading(

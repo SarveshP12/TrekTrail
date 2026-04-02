@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import MapView, { Polyline, Marker } from 'react-native-maps';
+import MapView, { Polyline } from 'react-native-maps';
 
 export function TrekMap({ routeCoordinates = [], followUser = true, children }: any) {
   // routeCoordinates format is expected to be [longitude, latitude] or [latitude, longitude]

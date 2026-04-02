@@ -10,7 +10,7 @@ interface AvatarProps {
 }
 
 export function Avatar({ name, size = 48, style }: AvatarProps) {
-  const { colors, radii } = useTheme();
+  const { colors } = useTheme();
 
   const initials = name
     ? name

@@ -10,19 +10,13 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-  Easing,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 import { PermissionGate } from '../src/components/PermissionGate';
 import { TrekHUD } from '../src/components/TrekHUD';
 import { TrekMap } from '../src/components/map/TrekMap';
 import { TrekControls } from '../src/components/TrekControls';
-import { useTrekRecorder, TrekState } from '../src/context/TrekRecorderContext';
+import { useTrekRecorder } from '../src/context/TrekRecorderContext';
 
 export default function TrekScreen() {
   return (
@@ -34,7 +28,7 @@ export default function TrekScreen() {
 
 function TrekContent() {
   const router = useRouter();
-  const { state, stats, start, stop, pause, resume } = useTrekRecorder();
+  const { state, start, stop, pause, resume } = useTrekRecorder();
 
   // Animations
   const buttonScale = useSharedValue(1);
@@ -46,6 +40,7 @@ function TrekContent() {
     } else {
       hudOpacity.value = withTiming(0, { duration: 300 });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   const hudAnimStyle = useAnimatedStyle(() => ({
@@ -56,7 +51,7 @@ function TrekContent() {
   const handleStart = useCallback(async () => {
     try {
       await start('TREKKING');
-    } catch (err) {
+    } catch {
       Alert.alert('Error', 'Failed to start trek. Please try again.');
     }
   }, [start]);

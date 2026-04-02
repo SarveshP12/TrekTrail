@@ -74,6 +74,7 @@ function RecordingIndicator() {
       -1,
       true,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animStyle = useAnimatedStyle(() => ({
@@ -97,6 +98,7 @@ export function TrekHUD() {
 
   useEffect(() => {
     slideIn.value = withSpring(0, { damping: 15 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const containerStyle = useAnimatedStyle(() => ({

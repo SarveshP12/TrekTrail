@@ -3,6 +3,7 @@ import { GPSReading } from '../services/location/LocationProvider';
 
 // Mock the ConnectivityMonitor
 jest.mock('../services/sync/ConnectivityMonitor', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { EventEmitter } = require('node:events');
   class MockConnectivityMonitor extends EventEmitter {
     _isConnected = true;
@@ -16,6 +17,7 @@ jest.mock('../services/sync/ConnectivityMonitor', () => {
   return { connectivityMonitor: instance };
 });
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { connectivityMonitor } = require('../services/sync/ConnectivityMonitor');
 
 // Mock global fetch

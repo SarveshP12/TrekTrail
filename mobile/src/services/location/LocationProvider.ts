@@ -22,8 +22,7 @@ class LocationProvider extends EventEmitter {
       return false;
     }
 
-    const { status: backgroundStatus } =
-      await Location.requestBackgroundPermissionsAsync();
+    await Location.requestBackgroundPermissionsAsync();
     // Background is optional — foreground is enough for core tracking
     return foregroundStatus === 'granted';
   }
