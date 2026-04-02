@@ -1,13 +1,14 @@
 from uuid import UUID
 
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.api.deps import get_current_user
 from app.database import get_db
 from app.exceptions import ForbiddenException
 from app.models.user import User
 from app.schemas.user import UserRead, UserUpdate
 from app.services.user_service import get_user_by_id, update_user
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/users", tags=["users"])
 

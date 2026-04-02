@@ -1,11 +1,12 @@
 from uuid import UUID
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.exceptions import ConflictException, NotFoundException
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
 from app.services.auth_service import hash_password
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def create_user(db: AsyncSession, data: UserCreate) -> User:

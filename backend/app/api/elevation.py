@@ -1,6 +1,7 @@
+from fastapi import APIRouter, Depends, Query
+
 from app.api.deps import get_current_user
 from app.services.elevation_service import lookup_elevation
-from fastapi import APIRouter, Depends, Query
 
 router = APIRouter(prefix="/elevation", tags=["elevation"])
 

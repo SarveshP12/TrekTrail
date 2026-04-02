@@ -1,4 +1,5 @@
 import httpx
+
 from app.config import settings
 from app.redis_client import get_redis
 

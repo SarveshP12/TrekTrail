@@ -3,9 +3,7 @@ from fastapi import HTTPException, status
 
 class NotFoundException(HTTPException):
     def __init__(self, entity: str = "Resource"):
-        super().__init__(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"{entity} not found"
-        )
+        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=f"{entity} not found")
 
 
 class ConflictException(HTTPException):

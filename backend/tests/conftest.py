@@ -2,10 +2,6 @@ import uuid
 from typing import AsyncGenerator
 
 import pytest_asyncio
-from app.database import get_db, get_ts_db
-from app.main import app
-from app.models.base import Base
-from app.services.auth_service import create_access_token, hash_password
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import StaticPool
 from sqlalchemy.dialects.postgresql import JSONB
@@ -18,6 +14,11 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 # SQLAlchemy's PostgreSQL-specific types (UUID, JSONB) don't compile to SQLite.
 # We register custom compilers so that Base.metadata.create_all works with SQLite.
 from sqlalchemy.ext.compiler import compiles
+
+from app.database import get_db, get_ts_db
+from app.main import app
+from app.models.base import Base
+from app.services.auth_service import create_access_token, hash_password
 
 
 @compiles(PG_UUID, "sqlite")
@@ -43,9 +44,7 @@ test_engine = create_async_engine(
     poolclass=StaticPool,
 )
 
-TestSessionLocal = async_sessionmaker(
-    test_engine, class_=AsyncSession, expire_on_commit=False
-)
+TestSessionLocal = async_sessionmaker(test_engine, class_=AsyncSession, expire_on_commit=False)
 
 
 async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
