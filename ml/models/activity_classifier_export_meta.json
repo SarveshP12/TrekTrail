@@ -1,0 +1,8 @@
+{
+  "export_method": "distillation",
+  "distillation_agreement": 0.7899,
+  "num_features": 20,
+  "num_classes": 5,
+  "quantized": false,
+  "model_size_kb": 16.7
+}

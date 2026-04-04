@@ -3,7 +3,7 @@ services:
     image: postgres:15-alpine
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: Shaily@1201
       POSTGRES_DB: trektrack
     ports:
       - "5440:5432"
@@ -19,7 +19,7 @@ services:
     image: timescale/timescaledb:latest-pg15
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: Shaily@1201
       POSTGRES_DB: trektrack_ts
     ports:
       - "5433:5432"

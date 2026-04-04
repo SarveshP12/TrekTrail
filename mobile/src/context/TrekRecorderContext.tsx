@@ -8,6 +8,7 @@ import React, {
   PropsWithChildren
 } from 'react';
 import * as Crypto from 'expo-crypto';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { gpsRepo } from '../services/db/gps-repository';
 import { locationProvider, GPSReading } from '../services/location/LocationProvider';
 import { BackgroundTracker } from '../services/location/BackgroundTracker';
@@ -16,6 +17,9 @@ import { DutyCycleManager } from '../services/location/DutyCycleManager';
 import { TrekStatsEngine, TrekStatsSnapshot } from '../services/tracking/TrekStatsEngine';
 import { BatchUploader } from '../services/sync/BatchUploader';
 import { connectivityMonitor } from '../services/sync/ConnectivityMonitor';
+import { KalmanFilter } from '../services/ai/KalmanFilter';
+import { ActivityClassifier } from '../services/ai/ActivityClassifier';
+import { NativeTFLiteModel } from '../services/ai/NativeTFLiteModel';
 
 export type TrekState = 'idle' | 'recording' | 'paused';
 
@@ -52,6 +56,10 @@ function emptyStats(): TrekStats {
     durationMs: 0,
     pointCount: 0,
     pace: null,
+    gpsFilteredCount: 0,
+    gpsRejectedCount: 0,
+    gpsEstimatedAccuracy: null,
+    currentActivity: 'IDLE',
     state: 'idle',
     pendingSyncCount: 0,
   };
@@ -67,11 +75,20 @@ export function TrekRecorderProvider({
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
   const buffer = useRef(new RingBuffer(50000));
-  const statsEngine = useRef(new TrekStatsEngine(30000));
+  const kalmanFilter = useRef(new KalmanFilter({ processNoiseSigma: 2.0 }));
+  const activityClassifier = useRef(new ActivityClassifier());
+  const statsEngine = useRef(new TrekStatsEngine(30000, kalmanFilter.current, activityClassifier.current));
   const dutyCycle = useRef(new DutyCycleManager());
   const uploader = useRef(new BatchUploader(apiBaseUrl, token));
   const statsInterval = useRef<ReturnType<typeof setInterval> | null>(null);
-  
+
+  // Sync token changes to the uploader
+  useEffect(() => {
+    if (uploader.current) {
+      uploader.current.setToken(token);
+    }
+  }, [token]);
+
   // Ref to hold the current session ID for callbacks
   const sessionIdRef = useRef<string | null>(null);
 
@@ -79,6 +96,25 @@ export function TrekRecorderProvider({
   useEffect(() => {
     sessionIdRef.current = currentSessionId;
   }, [currentSessionId]);
+
+  // Load Activity Classification TFLite model on mount
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const nativeModel = new NativeTFLiteModel();
+        // Dynamic require is resolved by metro (remember to make sure .tflite is in metro.config.js assetExts)
+        await nativeModel.init(require('../../assets/models/activity_classifier_v1.tflite'));
+        if (active) {
+          await activityClassifier.current.loadModel(nativeModel);
+          console.log('[TrekRecorderContext] Loaded classification model successfully');
+        }
+      } catch (err) {
+        console.warn('Failed to load ActivityClassifier TFLite Model, falling back to heuristics:', err);
+      }
+    })();
+    return () => { active = false; };
+  }, []);
 
   // Start connectivity monitoring on mount
   useEffect(() => {
@@ -117,11 +153,16 @@ export function TrekRecorderProvider({
   }, []);
 
   const handleReading = useCallback(async (reading: GPSReading) => {
-    // In-memory buffer for UI map - DB Write is handled by BackgroundTracker
-    buffer.current.push(reading);
-    statsEngine.current.addReading(reading);
-    dutyCycle.current.onReading(reading);
-    uploader.current.enqueue(reading);
+    // Feed to stats engine (which applies Kalman filter internally)
+    const processed = statsEngine.current.addReading(reading);
+
+    // If filter rejected the reading, skip buffer & upload
+    if (!processed) return;
+
+    // In-memory buffer for UI map - uses filtered coordinates
+    buffer.current.push(processed);
+    dutyCycle.current.onReading(processed);
+    uploader.current.enqueue(processed);
   }, []);
 
   // Restore active session on mount (delayed to avoid blocking app registration)
@@ -158,16 +199,22 @@ export function TrekRecorderProvider({
     async (activityType: string = 'TREKKING') => {
       console.log('Starting recording...');
       
+      const storedToken = await AsyncStorage.getItem('auth_token');
+      const activeToken = storedToken || token;
+
       // 1. Generate Local Session ID
       const sessionId = Crypto.randomUUID();
       setCurrentSessionId(sessionId);
       sessionIdRef.current = sessionId;
-      
+
       // 2. Reset engines
       buffer.current.clear();
       statsEngine.current.reset();
       dutyCycle.current.reset();
       uploader.current.clearQueue();
+      if (uploader.current) {
+        uploader.current.setToken(activeToken);
+      }
 
       // 3. Create Session in Local DB
       try {
@@ -179,13 +226,39 @@ export function TrekRecorderProvider({
 
       // 4. Try creating session on backend (non-blocking)
       try {
-        // Here we would normally call the API
-        // For now, we simulate success or just let the uploader handle it later
-        if (uploader.current.setSession) {
-             uploader.current.setSession(sessionId);
+        if (uploader.current) {
+             const resp = await fetch(`${apiBaseUrl}/sessions/start`, {
+               method: 'POST',
+               headers: {
+                 'Authorization': `Bearer ${activeToken}`,
+                 'Content-Type': 'application/json'
+               },
+               body: JSON.stringify({
+                 activity_type: activityType
+               })
+             });
+             
+             if (resp.ok) {
+               const data = await resp.json();
+               console.log("Backend session started successfully:", data.id);
+               
+               const syncedSessionId = data.id || sessionId;
+               
+               if (syncedSessionId !== sessionId) {
+                  setCurrentSessionId(syncedSessionId);
+                  sessionIdRef.current = syncedSessionId;
+               }
+               uploader.current.setSession(syncedSessionId);
+             } else {
+               console.log('[TrekRecorder] Backend create session failed (non-2xx). Falling back to offline mode.');
+               uploader.current.setSession(sessionId);
+             }
         }
-      } catch {
-        console.log('[TrekRecorder] Backend unreachable, continuing offline');
+      } catch (err) {
+        console.log('[TrekRecorder] Backend unreachable, continuing offline', err);  
+        if (uploader.current) {
+           uploader.current.setSession(sessionId);
+        }
       }
 
       // 5. Start GPS tracking

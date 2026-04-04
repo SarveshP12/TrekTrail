@@ -67,8 +67,8 @@ export class BackgroundTracker {
   ): Promise<boolean> {
     const { status } = await Location.getBackgroundPermissionsAsync();
     if (status !== 'granted') {
-      console.warn(
-        '[BackgroundTracker] Background location permission not granted',
+      console.log(
+        '[BackgroundTracker] Background location permission not granted, falling back to foreground location.',
       );
       return false;
     }

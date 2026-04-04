@@ -2,6 +2,9 @@ import { GPSReading } from '../location/LocationProvider';
 import { DistanceAccumulator } from './DistanceAccumulator';
 import { ElevationTracker } from './ElevationTracker';
 import { SpeedCalculator } from './SpeedCalculator';
+import { KalmanFilter, SmoothedGPSReading } from '../ai/KalmanFilter';
+import { ActivityClassifier } from '../ai/ActivityClassifier';
+import { ActivityLabel } from '../ai/FeatureExtractor';
 
 /**
  * Aggregates all real-time trek statistics into a single engine.
@@ -20,21 +23,34 @@ export interface TrekStatsSnapshot {
   durationMs: number; // elapsed time in ms
   pointCount: number; // total GPS points recorded
   pace: number | null; // min/km, null if speed is 0
+  // GPS quality metrics (populated when Kalman filter is active)
+  gpsFilteredCount: number; // readings that passed through the filter
+  gpsRejectedCount: number; // readings rejected (poor accuracy)
+  gpsEstimatedAccuracy: number | null; // filter's current accuracy estimate (m)
+  // Activity classification
+  currentActivity: ActivityLabel;
 }
 
 export class TrekStatsEngine {
   private distanceAccumulator: DistanceAccumulator;
   private elevationTracker: ElevationTracker;
   private speedCalculator: SpeedCalculator;
+  private kalmanFilter: KalmanFilter | null;
+  private activityClassifier: ActivityClassifier | null;
   private startTime: number = 0;
   private pointCount: number = 0;
+  private filteredCount: number = 0;
+  private rejectedCount: number = 0;
+  private lastSmoothed: SmoothedGPSReading | null = null;
   private pausedDurationMs: number = 0;
   private pauseStartTime: number | null = null;
 
-  constructor(speedWindowMs: number = 30000) {
+  constructor(speedWindowMs: number = 30000, kalmanFilter?: KalmanFilter, activityClassifier?: ActivityClassifier) {
     this.distanceAccumulator = new DistanceAccumulator();
     this.elevationTracker = new ElevationTracker();
     this.speedCalculator = new SpeedCalculator(speedWindowMs);
+    this.kalmanFilter = kalmanFilter ?? null;
+    this.activityClassifier = activityClassifier ?? null;
   }
 
   /** Start the trek timer. Call once at the beginning of a trek. */
@@ -57,12 +73,39 @@ export class TrekStatsEngine {
     }
   }
 
-  /** Feed a new GPS reading into all sub-engines. */
-  addReading(reading: GPSReading): void {
+  /** Feed a new GPS reading into all sub-engines.
+   *  If a Kalman filter is attached, the reading is smoothed first.
+   *  Returns the (possibly smoothed) reading that was actually used,
+   *  or null if the filter rejected the reading. */
+  addReading(reading: GPSReading): GPSReading | null {
     this.pointCount++;
-    this.distanceAccumulator.addReading(reading);
-    this.elevationTracker.addReading(reading);
-    this.speedCalculator.addReading(reading);
+
+    let processed: GPSReading = reading;
+
+    if (this.kalmanFilter) {
+      const smoothed = this.kalmanFilter.filter(reading);
+      if (!smoothed) {
+        // Filter rejected this reading (poor accuracy)
+        this.rejectedCount++;
+        return null;
+      }
+      this.filteredCount++;
+      this.lastSmoothed = smoothed;
+      processed = smoothed;
+    }
+
+    this.distanceAccumulator.addReading(processed);
+    this.elevationTracker.addReading(processed);
+    this.speedCalculator.addReading(processed);
+    
+    if (this.activityClassifier) {
+      // Fire-and-forget async classification inference
+      this.activityClassifier.classify(processed).catch(err => {
+        console.warn('[TrekStatsEngine] Error in activity classification', err);
+      });
+    }
+
+    return processed;
   }
 
   /** Get the current stats snapshot. */
@@ -91,6 +134,10 @@ export class TrekStatsEngine {
       durationMs,
       pointCount: this.pointCount,
       pace,
+      gpsFilteredCount: this.filteredCount,
+      gpsRejectedCount: this.rejectedCount,
+      gpsEstimatedAccuracy: this.lastSmoothed?.estimatedAccuracy ?? null,
+      currentActivity: this.activityClassifier?.getCurrentActivity() ?? 'IDLE',
     };
   }
 
@@ -108,8 +155,12 @@ export class TrekStatsEngine {
     this.distanceAccumulator.reset();
     this.elevationTracker.reset();
     this.speedCalculator.reset();
+    this.kalmanFilter?.reset();
     this.startTime = 0;
     this.pointCount = 0;
+    this.filteredCount = 0;
+    this.rejectedCount = 0;
+    this.lastSmoothed = null;
     this.pausedDurationMs = 0;
     this.pauseStartTime = null;
   }

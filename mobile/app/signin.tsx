@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { API_ENDPOINTS } from "../src/config/api"; 
 
@@ -35,7 +36,8 @@ export default function SignIn() {
       if (response.ok) {
         // Success
         console.log("Login successful:", data);
-          // Here you would store the token in AsyncStorage/SecureStore
+          // Store the token for location uploading & other API calls
+          await AsyncStorage.setItem("auth_token", data.access_token);
           router.replace("/(tabs)/home");
       } else {
         Alert.alert("Login Failed", data.detail || "Invalid credentials");

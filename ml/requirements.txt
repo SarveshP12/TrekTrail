@@ -2,7 +2,11 @@ numpy==1.26.4
 pandas==2.2.0
 scikit-learn==1.4.0
 xgboost==2.0.3
-tensorflow==2.15.0
+tensorflow==2.16.1
 matplotlib==3.8.3
 seaborn==0.13.2
 jupyterlab==4.1.1
+onnx==1.16.0
+onnxmltools==1.12.0
+onnxruntime==1.17.0
+coremltools==8.0

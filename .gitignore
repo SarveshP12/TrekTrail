@@ -33,8 +33,7 @@ infrastructure/.env.docker
 # ML
 ml/models/*.tflite
 ml/models/*.pkl
-ml/data/*.csv
-ml/data/*.parquet
+ml/data/
 
 # OS
 .DS_Store
