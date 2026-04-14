@@ -11,9 +11,7 @@ from app.schemas.gps_point import GPSPointCreate
 logger = logging.getLogger(__name__)
 
 
-async def store_gps_points(
-    db: AsyncSession, session_id: UUID, points: list[GPSPointCreate]
-) -> int:
+async def store_gps_points(db: AsyncSession, session_id: UUID, points: list[GPSPointCreate]) -> int:
     """Store a batch of GPS track points in TimescaleDB.
 
     Uses INSERT ... ON CONFLICT DO NOTHING to handle duplicate (time, session_id)

@@ -26,9 +26,7 @@ async def test_update_own_profile(client: AsyncClient, test_user, auth_headers):
 
 
 @pytest.mark.asyncio
-async def test_update_other_user_profile_forbidden(
-    client: AsyncClient, test_user, auth_headers
-):
+async def test_update_other_user_profile_forbidden(client: AsyncClient, test_user, auth_headers):
     import uuid
 
     other_user_id = uuid.uuid4()

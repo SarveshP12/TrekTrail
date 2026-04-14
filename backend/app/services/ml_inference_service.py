@@ -161,9 +161,7 @@ class MLInferenceService:
             ]
 
             predicted_class = (
-                classes[label_idx]
-                if 0 <= label_idx < len(classes)
-                else ActivityType.UNKNOWN
+                classes[label_idx] if 0 <= label_idx < len(classes) else ActivityType.UNKNOWN
             )
 
             return MLInferenceResult(

@@ -28,9 +28,9 @@ scenarios = [
     ),
 ]
 
-print(f"\n{chr(61)*50}")
+print(f"\n{chr(61) * 50}")
 print(f"  TrekTrack AI - Grade Adjusted Pace (GAP) Test")
-print(f"{chr(61)*50}")
+print(f"{chr(61) * 50}")
 
 # Note: 100m in 30s = 3.33 m/s = 5:00 min/km actual pace for all scenarios.
 for name, seg in scenarios:
