@@ -1,4 +1,3 @@
-
 import numpy as np
 
 # Load real
@@ -16,4 +15,3 @@ y_all = np.concatenate([y_real, y_syn])
 # Save
 np.savez("data/activity_features_combined.npz", X=X_all, y=y_all)
 print("Combined shape:", X_all.shape)
-

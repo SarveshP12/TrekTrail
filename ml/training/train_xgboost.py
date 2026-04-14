@@ -43,7 +43,6 @@ from feature_extractor import (
     generate_synthetic_dataset,
 )
 
-
 # ─── Default Hyperparameters ─────────────────────────────────────────────────
 
 DEFAULT_PARAMS: dict[str, Any] = {
@@ -59,13 +58,14 @@ DEFAULT_PARAMS: dict[str, Any] = {
     "gamma": 0.1,
     "reg_alpha": 0.1,
     "reg_lambda": 1.0,
-    "tree_method": "hist",    # fast histogram-based method
+    "tree_method": "hist",  # fast histogram-based method
     "random_state": 42,
     "verbosity": 1,
 }
 
 
 # ─── Training Pipeline ───────────────────────────────────────────────────────
+
 
 class ActivityClassifierTrainer:
     """End-to-end training pipeline for the activity classifier."""
@@ -113,11 +113,14 @@ class ActivityClassifierTrainer:
         unique, counts = np.unique(y, return_counts=True)
         print(f"\n  Class distribution:")
         for cls_id, count in zip(unique, counts):
-            print(f"    {ID_TO_LABEL[cls_id]:>10}: {count:>5} ({count/len(y)*100:.1f}%)")
+            print(
+                f"    {ID_TO_LABEL[cls_id]:>10}: {count:>5} ({count/len(y)*100:.1f}%)"
+            )
 
         # ── Train/Test split ──
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y,
+            X,
+            y,
             test_size=self.test_size,
             stratify=y,
             random_state=42,
@@ -134,10 +137,15 @@ class ActivityClassifierTrainer:
         if run_cv:
             print(f"\n  Running {self.n_cv_folds}-fold cross-validation...")
             cv_model = xgb.XGBClassifier(**self.params)
-            skf = StratifiedKFold(n_splits=self.n_cv_folds, shuffle=True, random_state=42)
+            skf = StratifiedKFold(
+                n_splits=self.n_cv_folds, shuffle=True, random_state=42
+            )
             cv_scores = cross_val_score(
-                cv_model, X_train_scaled, y_train,
-                cv=skf, scoring="f1_macro",
+                cv_model,
+                X_train_scaled,
+                y_train,
+                cv=skf,
+                scoring="f1_macro",
             )
             print(f"  CV F1 (macro): {cv_scores.mean():.4f} ± {cv_scores.std():.4f}")
 
@@ -147,7 +155,8 @@ class ActivityClassifierTrainer:
 
         self.model = xgb.XGBClassifier(**self.params)
         self.model.fit(
-            X_train_scaled, y_train,
+            X_train_scaled,
+            y_train,
             eval_set=[(X_test_scaled, y_test)],
             verbose=False,
         )
@@ -161,7 +170,8 @@ class ActivityClassifierTrainer:
         f1 = f1_score(y_test, y_pred, average="macro")
         conf_matrix = confusion_matrix(y_test, y_pred)
         class_report = classification_report(
-            y_test, y_pred,
+            y_test,
+            y_pred,
             target_names=ACTIVITY_LABELS,
             output_dict=True,
         )
@@ -202,8 +212,12 @@ class ActivityClassifierTrainer:
             "metrics": {
                 "test_accuracy": round(float(accuracy), 4),
                 "test_f1_macro": round(float(f1), 4),
-                "cv_f1_mean": round(float(cv_scores.mean()), 4) if cv_scores is not None else None,
-                "cv_f1_std": round(float(cv_scores.std()), 4) if cv_scores is not None else None,
+                "cv_f1_mean": (
+                    round(float(cv_scores.mean()), 4) if cv_scores is not None else None
+                ),
+                "cv_f1_std": (
+                    round(float(cv_scores.std()), 4) if cv_scores is not None else None
+                ),
             },
             "feature_importance": {
                 fname: round(float(imp), 4) for fname, imp in importance_ranking
@@ -266,17 +280,26 @@ class ActivityClassifierTrainer:
 
 # ─── CLI Entry Point ─────────────────────────────────────────────────────────
 
+
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description="Train TrekTrack AI Activity Classifier")
+    parser = argparse.ArgumentParser(
+        description="Train TrekTrack AI Activity Classifier"
+    )
     parser.add_argument("--data", type=str, help="Path to .npz feature file")
     parser.add_argument("--synthetic", action="store_true", help="Use synthetic data")
-    parser.add_argument("--samples", type=int, default=1000, help="Samples per class (synthetic)")
-    parser.add_argument("--output-dir", type=str, default="../models", help="Output directory")
+    parser.add_argument(
+        "--samples", type=int, default=1000, help="Samples per class (synthetic)"
+    )
+    parser.add_argument(
+        "--output-dir", type=str, default="../models", help="Output directory"
+    )
     parser.add_argument("--no-cv", action="store_true", help="Skip cross-validation")
     parser.add_argument("--max-depth", type=int, default=6, help="XGBoost max_depth")
-    parser.add_argument("--n-estimators", type=int, default=200, help="Number of boosting rounds")
+    parser.add_argument(
+        "--n-estimators", type=int, default=200, help="Number of boosting rounds"
+    )
     parser.add_argument("--lr", type=float, default=0.1, help="Learning rate")
 
     args = parser.parse_args()

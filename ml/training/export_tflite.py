@@ -140,13 +140,12 @@ def export_tf_to_tflite(
     # ─── Export to Core ML ──────────────────────────────────────
     try:
         import coremltools as ct
+
         print(f"  Converting TF SavedModel → Core ML (.mlmodel)...")
         # Load the saved model and convert it
         input_feature = ct.TensorType(name="features", shape=(1, num_features))
         mlmodel = ct.convert(
-            savedmodel_dir,
-            inputs=[input_feature],
-            convert_to="neuralnetwork"
+            savedmodel_dir, inputs=[input_feature], convert_to="neuralnetwork"
         )
         mlmodel_path = tflite_path.replace(".tflite", ".mlmodel")
         mlmodel.save(mlmodel_path)
@@ -207,15 +206,17 @@ def export_direct_tflite(
 
     # Build a small MLP that mimics XGBoost
     print(f"  Training distillation MLP...")
-    model = tf.keras.Sequential([
-        tf.keras.layers.Input(shape=(num_features,)),
-        tf.keras.layers.Dense(64, activation="relu"),
-        tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(32, activation="relu"),
-        tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.Dense(num_classes, activation="softmax"),
-    ])
+    model = tf.keras.Sequential(
+        [
+            tf.keras.layers.Input(shape=(num_features,)),
+            tf.keras.layers.Dense(64, activation="relu"),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.Dense(32, activation="relu"),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.Dense(num_classes, activation="softmax"),
+        ]
+    )
 
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
@@ -225,7 +226,8 @@ def export_direct_tflite(
 
     # Train on XGBoost's soft predictions (knowledge distillation)
     model.fit(
-        X_distill, y_probs,
+        X_distill,
+        y_probs,
         epochs=50,
         batch_size=256,
         validation_split=0.1,
@@ -263,17 +265,14 @@ def export_direct_tflite(
     # ─── Export to Core ML ──────────────────────────────────────
     try:
         import coremltools as ct
+
         print(f"  Converting MLP → Core ML (.mlmodel)...")
         # Convert the Keras model to Core ML
         # We specify input shape and output
         # Using neuralnetwork to export as .mlmodel file format
         input_feature = ct.TensorType(name="dense_input", shape=(1, num_features))
-        mlmodel = ct.convert(
-            model,
-            inputs=[input_feature],
-            convert_to="neuralnetwork"
-        )
-        
+        mlmodel = ct.convert(model, inputs=[input_feature], convert_to="neuralnetwork")
+
         mlmodel_path = tflite_path.replace(".tflite", ".mlmodel")
         mlmodel.save(mlmodel_path)
         print(f"  Saved Core ML model: {mlmodel_path}")
@@ -300,6 +299,7 @@ def export_direct_tflite(
 
 
 # ─── Full Pipeline ────────────────────────────────────────────────────────────
+
 
 def full_export_pipeline(
     model_path: str,
@@ -351,7 +351,8 @@ def full_export_pipeline(
             f"{model_name}_scaler.json",
         )
         export_direct_tflite(
-            model_path, tflite_path,
+            model_path,
+            tflite_path,
             scaler_path=scaler_path if os.path.exists(scaler_path) else None,
             num_features=num_features,
             num_classes=num_classes,
@@ -364,6 +365,7 @@ def full_export_pipeline(
 
 # ─── CLI Entry Point ─────────────────────────────────────────────────────────
 
+
 def main():
     import argparse
 
@@ -371,23 +373,31 @@ def main():
         description="Export XGBoost Activity Classifier to TFLite"
     )
     parser.add_argument(
-        "--model", type=str, required=True,
+        "--model",
+        type=str,
+        required=True,
         help="Path to trained XGBoost model (.json or .xgb)",
     )
     parser.add_argument(
-        "--output-dir", type=str, default="../models",
+        "--output-dir",
+        type=str,
+        default="../models",
         help="Output directory for exported models",
     )
     parser.add_argument(
-        "--name", type=str, default="activity_classifier",
+        "--name",
+        type=str,
+        default="activity_classifier",
         help="Base name for output files",
     )
     parser.add_argument(
-        "--quantize", action="store_true",
+        "--quantize",
+        action="store_true",
         help="Apply dynamic range quantization",
     )
     parser.add_argument(
-        "--use-onnx", action="store_true",
+        "--use-onnx",
+        action="store_true",
         help="Use ONNX pipeline instead of distillation (requires onnxmltools)",
     )
 

@@ -298,10 +298,14 @@ async def compute_gap(
 
     return GAPResponse(
         actual_avg_pace_min_km=(
-            round(summary.actual_avg_pace_min_km, 2) if summary.actual_avg_pace_min_km else None
+            round(summary.actual_avg_pace_min_km, 2)
+            if summary.actual_avg_pace_min_km
+            else None
         ),
         gap_avg_pace_min_km=(
-            round(summary.gap_avg_pace_min_km, 2) if summary.gap_avg_pace_min_km else None
+            round(summary.gap_avg_pace_min_km, 2)
+            if summary.gap_avg_pace_min_km
+            else None
         ),
         total_distance_m=round(summary.total_distance_m, 2),
         total_elevation_gain_m=round(summary.total_elevation_gain_m, 2),

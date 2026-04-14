@@ -9,10 +9,19 @@ from app.database import get_db, get_ts_db
 from app.models.user import User
 from app.schemas.common import PaginatedResponse
 from app.schemas.gps_point import GPSPointBatchUpload
-from app.schemas.trek_session import TrekSessionCreate, TrekSessionRead, TrekSessionSummary
+from app.schemas.trek_session import (
+    TrekSessionCreate,
+    TrekSessionRead,
+    TrekSessionSummary,
+)
 from app.services.export_service import generate_gpx, generate_kml
 from app.services.gps_service import get_session_points, store_gps_points
-from app.services.session_service import end_session, get_session, get_user_history, start_session
+from app.services.session_service import (
+    end_session,
+    get_session,
+    get_user_history,
+    start_session,
+)
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -45,7 +54,10 @@ async def upload_points(
         logging.getLogger(__name__).warning(
             "GPS upload partial failure for session %s: %s", session_id, exc
         )
-        return {"accepted": 0, "warning": "Some points could not be stored (duplicates)"}
+        return {
+            "accepted": 0,
+            "warning": "Some points could not be stored (duplicates)",
+        }
 
 
 @router.post("/{session_id}/end", response_model=TrekSessionRead)

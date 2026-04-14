@@ -186,7 +186,9 @@ def compute_session_gap(segments: list[GPSSegment]) -> SessionGAPSummary:
         else:
             total_loss += abs(seg.elevation_delta_m)
 
-        gradient = seg.elevation_delta_m / seg.distance_m if seg.distance_m > 0.1 else 0.0
+        gradient = (
+            seg.elevation_delta_m / seg.distance_m if seg.distance_m > 0.1 else 0.0
+        )
         gradient_sum += gradient
 
         factor = grade_adjustment_factor(gradient)
@@ -234,7 +236,10 @@ def gps_points_to_segments(points: list[dict]) -> list[GPSSegment]:
         lat2, lon2 = math.radians(curr["latitude"]), math.radians(curr["longitude"])
         dlat = lat2 - lat1
         dlon = lon2 - lon1
-        a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+        )
         distance_m = earth_r * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
         alt1 = prev.get("altitude") or 0.0

@@ -10,7 +10,9 @@ from app.services.gps_service import get_session_points
 from app.utils.distance import compute_trek_stats
 
 
-async def start_session(db: AsyncSession, user_id: UUID, activity_type: str) -> TrekSession:
+async def start_session(
+    db: AsyncSession, user_id: UUID, activity_type: str
+) -> TrekSession:
     session = TrekSession(
         user_id=user_id,
         start_time=datetime.now(timezone.utc),

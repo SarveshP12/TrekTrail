@@ -6,9 +6,18 @@ sys.path.append(os.path.dirname(__file__))
 from app.services.gap_service import GPSSegment, compute_segment_gap
 
 scenarios = [
-    ("Flat (0% grade)", GPSSegment(distance_m=100.0, elevation_delta_m=0.0, time_s=30.0)),
-    ("Gentle Uphill (5% grade)", GPSSegment(distance_m=100.0, elevation_delta_m=5.0, time_s=30.0)),
-    ("Steep Uphill (15% grade)", GPSSegment(distance_m=100.0, elevation_delta_m=15.0, time_s=30.0)),
+    (
+        "Flat (0% grade)",
+        GPSSegment(distance_m=100.0, elevation_delta_m=0.0, time_s=30.0),
+    ),
+    (
+        "Gentle Uphill (5% grade)",
+        GPSSegment(distance_m=100.0, elevation_delta_m=5.0, time_s=30.0),
+    ),
+    (
+        "Steep Uphill (15% grade)",
+        GPSSegment(distance_m=100.0, elevation_delta_m=15.0, time_s=30.0),
+    ),
     (
         "Gentle Downhill (-5% grade)",
         GPSSegment(distance_m=100.0, elevation_delta_m=-5.0, time_s=30.0),

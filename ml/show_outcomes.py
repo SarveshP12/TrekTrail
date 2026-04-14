@@ -1,4 +1,3 @@
-
 import numpy as np
 import xgboost as xgb
 import json
@@ -21,7 +20,7 @@ X = data["X"]
 y = data["y"]
 
 # Randomly select 10 samples
-np.random.seed(42) # For reproducible results
+np.random.seed(42)  # For reproducible results
 indices = np.random.choice(len(X), 10, replace=False)
 X_sample = X[indices]
 y_sample = y[indices]
@@ -46,8 +45,7 @@ for i in range(10):
     actual = labels[int(y_sample[i])]
     pred = labels[int(preds[i])]
     conf = probs[i, int(preds[i])] * 100
-    
+
     match = "PASS" if actual == pred else "FAIL"
     print(f"{actual:<15} | {pred:<15} | {conf:5.1f}%   [{match}]")
 print(f"{chr(61)*50}\n")
-

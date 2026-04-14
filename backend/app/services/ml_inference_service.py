@@ -104,7 +104,9 @@ class MLInferenceService:
         if not _HAVE_FEATURE_EXTRACTOR:
             # Fallback if no model/extractor available
             return MLInferenceResult(
-                activity=ActivityType.UNKNOWN, confidence=0.0, model_version="no_extractor"
+                activity=ActivityType.UNKNOWN,
+                confidence=0.0,
+                model_version="no_extractor",
             )
 
         try:
@@ -159,7 +161,9 @@ class MLInferenceService:
             ]
 
             predicted_class = (
-                classes[label_idx] if 0 <= label_idx < len(classes) else ActivityType.UNKNOWN
+                classes[label_idx]
+                if 0 <= label_idx < len(classes)
+                else ActivityType.UNKNOWN
             )
 
             return MLInferenceResult(

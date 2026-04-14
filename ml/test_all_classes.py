@@ -1,4 +1,3 @@
-
 import numpy as np
 import xgboost as xgb
 import json
@@ -51,14 +50,15 @@ for i in range(len(indices)):
     actual = labels[int(y_sample[i])]
     pred = labels[int(preds[i])]
     conf = probs[i, int(preds[i])] * 100
-    
+
     match = "PASS" if actual == pred else "FAIL"
     print(f"{actual:<15} | {pred:<15} | {conf:5.1f}%   [{match}]")
 
 print(f"\n{chr(61)*50}")
-print("  Example Inputs taken for the first activity (" + labels[int(y_sample[0])] + ")")
+print(
+    "  Example Inputs taken for the first activity (" + labels[int(y_sample[0])] + ")"
+)
 print(f"{chr(61)*50}")
 for j, feat_name in enumerate(feature_names):
     print(f"{feat_name:<20} : {X_sample[0][j]:.4f}")
 print("\n")
-

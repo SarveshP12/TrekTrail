@@ -9,7 +9,9 @@ os.makedirs(target_dir, exist_ok=True)
 print("Downloading dataset via kagglehub...")
 # Download latest version to default cache
 try:
-    path = kagglehub.dataset_download("arashnic/microsoft-geolife-gps-trajectory-dataset")
+    path = kagglehub.dataset_download(
+        "arashnic/microsoft-geolife-gps-trajectory-dataset"
+    )
     print(f"Dataset downloaded to cache: {path}")
     print(f"Moving dataset to: {target_dir}")
 
@@ -17,7 +19,7 @@ try:
     for item in os.listdir(path):
         s = os.path.join(path, item)
         d = os.path.join(target_dir, item)
-        
+
         # Remove target if exists to avoid errors on retry
         if os.path.isdir(s):
             if os.path.exists(d):

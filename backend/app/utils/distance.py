@@ -9,7 +9,10 @@ def haversine_2d(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     dphi = math.radians(lat2 - lat1)
     dlambda = math.radians(lon2 - lon1)
 
-    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    a = (
+        math.sin(dphi / 2) ** 2
+        + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    )
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
@@ -39,7 +42,9 @@ def compute_trek_stats(points: list[dict[str, Any]]) -> dict[str, Any]:
     for i in range(1, len(points)):
         p1, p2 = points[i - 1], points[i]
 
-        d2d = haversine_2d(p1["latitude"], p1["longitude"], p2["latitude"], p2["longitude"])
+        d2d = haversine_2d(
+            p1["latitude"], p1["longitude"], p2["latitude"], p2["longitude"]
+        )
         total_2d += d2d
 
         alt1 = p1.get("altitude") or 0.0
@@ -84,7 +89,9 @@ def compute_trek_stats(points: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def _compute_difficulty(distance_3d: float, elevation_gain: float, altitudes: list[float]) -> str:
+def _compute_difficulty(
+    distance_3d: float, elevation_gain: float, altitudes: list[float]
+) -> str:
     score = 0
     # Distance factor
     if distance_3d > 20000:

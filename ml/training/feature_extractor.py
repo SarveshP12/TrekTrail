@@ -19,7 +19,6 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-
 # ─── Activity Labels ──────────────────────────────────────────────────────────
 
 ACTIVITY_LABELS = ["IDLE", "WALKING", "TREKKING", "RUNNING", "CYCLING"]
@@ -31,8 +30,8 @@ NUM_CLASSES = len(ACTIVITY_LABELS)
 # ─── Constants ────────────────────────────────────────────────────────────────
 
 EARTH_RADIUS_M = 6_371_000
-DEFAULT_WINDOW_SIZE = 5       # number of readings per window
-DEFAULT_STEP_SIZE = 1         # slide by 1 reading
+DEFAULT_WINDOW_SIZE = 5  # number of readings per window
+DEFAULT_STEP_SIZE = 1  # slide by 1 reading
 METERS_PER_DEG_LAT = 111_320
 
 
@@ -41,7 +40,10 @@ def _haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     rlat1, rlat2 = math.radians(lat1), math.radians(lat2)
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
-    a = math.sin(dlat / 2) ** 2 + math.cos(rlat1) * math.cos(rlat2) * math.sin(dlon / 2) ** 2
+    a = (
+        math.sin(dlat / 2) ** 2
+        + math.cos(rlat1) * math.cos(rlat2) * math.sin(dlon / 2) ** 2
+    )
     return EARTH_RADIUS_M * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
@@ -57,15 +59,15 @@ FEATURE_NAMES = [
     # Distance features
     "total_distance",
     "displacement",
-    "sinuosity",           # total_distance / displacement (straightness)
+    "sinuosity",  # total_distance / displacement (straightness)
     # Altitude features
     "altitude_mean",
     "altitude_std",
-    "altitude_delta",      # last - first altitude in window
+    "altitude_delta",  # last - first altitude in window
     "altitude_gain",
     "altitude_loss",
     # Heading features
-    "heading_mean_sin",    # circular mean via sin/cos
+    "heading_mean_sin",  # circular mean via sin/cos
     "heading_mean_cos",
     "heading_std",
     # Acceleration proxy (speed change rate)
@@ -82,9 +84,10 @@ NUM_FEATURES = len(FEATURE_NAMES)
 
 # ─── Feature Extraction ──────────────────────────────────────────────────────
 
+
 @dataclass
 class GPSPoint:
-    timestamp: float       # seconds since epoch
+    timestamp: float  # seconds since epoch
     latitude: float
     longitude: float
     altitude: Optional[float] = None
@@ -118,8 +121,10 @@ def extract_window_features(points: list[GPSPoint]) -> np.ndarray:
     segment_dists: list[float] = []
     for i in range(1, n):
         d = _haversine(
-            points[i - 1].latitude, points[i - 1].longitude,
-            points[i].latitude, points[i].longitude,
+            points[i - 1].latitude,
+            points[i - 1].longitude,
+            points[i].latitude,
+            points[i].longitude,
         )
         segment_dists.append(d)
 
@@ -127,17 +132,19 @@ def extract_window_features(points: list[GPSPoint]) -> np.ndarray:
 
     # Displacement: straight-line distance from first to last
     displacement = _haversine(
-        points[0].latitude, points[0].longitude,
-        points[-1].latitude, points[-1].longitude,
+        points[0].latitude,
+        points[0].longitude,
+        points[-1].latitude,
+        points[-1].longitude,
     )
 
     # Sinuosity = total_distance / displacement (1.0 = perfectly straight)
     sinuosity = total_distance / max(displacement, 0.01)
 
     # ── Altitude ──
-    altitudes = np.array([
-        p.altitude if p.altitude is not None else 0.0 for p in points
-    ])
+    altitudes = np.array(
+        [p.altitude if p.altitude is not None else 0.0 for p in points]
+    )
     altitude_mean = float(np.mean(altitudes))
     altitude_std = float(np.std(altitudes))
     altitude_delta = float(altitudes[-1] - altitudes[0])
@@ -152,15 +159,14 @@ def extract_window_features(points: list[GPSPoint]) -> np.ndarray:
             altitude_loss += abs(diff)
 
     # ── Heading (circular statistics) ──
-    headings_rad = np.array([
-        math.radians(p.heading) if p.heading is not None else 0.0
-        for p in points
-    ])
+    headings_rad = np.array(
+        [math.radians(p.heading) if p.heading is not None else 0.0 for p in points]
+    )
     heading_mean_sin = float(np.mean(np.sin(headings_rad)))
     heading_mean_cos = float(np.mean(np.cos(headings_rad)))
 
     # Circular std: 1 - R  where R = sqrt(sin_mean² + cos_mean²)
-    R = math.sqrt(heading_mean_sin ** 2 + heading_mean_cos ** 2)
+    R = math.sqrt(heading_mean_sin**2 + heading_mean_cos**2)
     heading_std = float(1.0 - R)
 
     # ── Acceleration proxy (speed change / dt) ──
@@ -189,31 +195,35 @@ def extract_window_features(points: list[GPSPoint]) -> np.ndarray:
         if speed_detrended[i - 1] * speed_detrended[i] < 0:
             zero_crossings += 1
 
-    return np.array([
-        speed_mean,
-        speed_std,
-        speed_max,
-        speed_min,
-        speed_range,
-        total_distance,
-        displacement,
-        sinuosity,
-        altitude_mean,
-        altitude_std,
-        altitude_delta,
-        altitude_gain,
-        altitude_loss,
-        heading_mean_sin,
-        heading_mean_cos,
-        heading_std,
-        acceleration_mean,
-        acceleration_std,
-        window_duration_s,
-        float(zero_crossings),
-    ], dtype=np.float32)
+    return np.array(
+        [
+            speed_mean,
+            speed_std,
+            speed_max,
+            speed_min,
+            speed_range,
+            total_distance,
+            displacement,
+            sinuosity,
+            altitude_mean,
+            altitude_std,
+            altitude_delta,
+            altitude_gain,
+            altitude_loss,
+            heading_mean_sin,
+            heading_mean_cos,
+            heading_std,
+            acceleration_mean,
+            acceleration_std,
+            window_duration_s,
+            float(zero_crossings),
+        ],
+        dtype=np.float32,
+    )
 
 
 # ─── Dataset Builder ──────────────────────────────────────────────────────────
+
 
 def build_dataset_from_csv(
     csv_path: str,
@@ -294,29 +304,29 @@ def generate_synthetic_dataset(
 
     # Activity-specific speed profiles (m/s): (mean, std)
     speed_profiles = {
-        "IDLE":     (0.0, 0.05),
-        "WALKING":  (1.3, 0.3),
+        "IDLE": (0.0, 0.05),
+        "WALKING": (1.3, 0.3),
         "TREKKING": (1.0, 0.4),
-        "RUNNING":  (3.0, 0.6),
-        "CYCLING":  (5.5, 1.2),
+        "RUNNING": (3.0, 0.6),
+        "CYCLING": (5.5, 1.2),
     }
 
     # Altitude change profiles (m per step): (mean_delta, std_delta)
     altitude_profiles = {
-        "IDLE":     (0.0, 0.2),
-        "WALKING":  (0.0, 0.5),
-        "TREKKING": (0.5, 1.5),   # uphill bias
-        "RUNNING":  (0.0, 0.3),
-        "CYCLING":  (0.0, 0.8),
+        "IDLE": (0.0, 0.2),
+        "WALKING": (0.0, 0.5),
+        "TREKKING": (0.5, 1.5),  # uphill bias
+        "RUNNING": (0.0, 0.3),
+        "CYCLING": (0.0, 0.8),
     }
 
     # Heading variance (radians std)
     heading_var = {
-        "IDLE":     1.5,    # random jitter
-        "WALKING":  0.3,
-        "TREKKING": 0.5,    # trail turns
-        "RUNNING":  0.2,    # relatively straight
-        "CYCLING":  0.15,   # very straight
+        "IDLE": 1.5,  # random jitter
+        "WALKING": 0.3,
+        "TREKKING": 0.5,  # trail turns
+        "RUNNING": 0.2,  # relatively straight
+        "CYCLING": 0.15,  # very straight
     }
 
     for label in ACTIVITY_LABELS:
@@ -354,15 +364,17 @@ def generate_synthetic_dataset(
                 lon += dlon
                 alt += alt_delta
 
-                points.append(GPSPoint(
-                    timestamp=float(t),
-                    latitude=lat,
-                    longitude=lon,
-                    altitude=alt,
-                    accuracy=rng.uniform(3, 15),
-                    speed=speed,
-                    heading=heading,
-                ))
+                points.append(
+                    GPSPoint(
+                        timestamp=float(t),
+                        latitude=lat,
+                        longitude=lon,
+                        altitude=alt,
+                        accuracy=rng.uniform(3, 15),
+                        speed=speed,
+                        heading=heading,
+                    )
+                )
 
             features = extract_window_features(points)
             X_list.append(features)
@@ -384,16 +396,29 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Feature Extractor for TrekTrack AI")
     parser.add_argument("--csv", type=str, help="Path to labeled GPS CSV file")
-    parser.add_argument("--synthetic", action="store_true", help="Generate synthetic dataset")
-    parser.add_argument("--samples", type=int, default=500, help="Samples per class for synthetic data")
-    parser.add_argument("--window", type=int, default=DEFAULT_WINDOW_SIZE, help="Window size")
-    parser.add_argument("--output-dir", type=str, default="../data", help="Output directory for .npz files")
+    parser.add_argument(
+        "--synthetic", action="store_true", help="Generate synthetic dataset"
+    )
+    parser.add_argument(
+        "--samples", type=int, default=500, help="Samples per class for synthetic data"
+    )
+    parser.add_argument(
+        "--window", type=int, default=DEFAULT_WINDOW_SIZE, help="Window size"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="../data",
+        help="Output directory for .npz files",
+    )
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
 
     if args.synthetic:
-        print(f"Generating synthetic dataset ({args.samples} samples/class, window={args.window})...")
+        print(
+            f"Generating synthetic dataset ({args.samples} samples/class, window={args.window})..."
+        )
         X, y = generate_synthetic_dataset(
             num_samples_per_class=args.samples,
             window_size=args.window,

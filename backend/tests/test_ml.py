@@ -16,8 +16,18 @@ async def test_get_model_info(client: AsyncClient):
 async def test_predict_activity(client: AsyncClient):
     payload = {
         "points": [
-            {"latitude": 45.0, "longitude": 9.0, "elevation": 200.0, "timestamp": 1690000000.0},
-            {"latitude": 45.01, "longitude": 9.01, "elevation": 250.0, "timestamp": 1690000300.0},
+            {
+                "latitude": 45.0,
+                "longitude": 9.0,
+                "elevation": 200.0,
+                "timestamp": 1690000000.0,
+            },
+            {
+                "latitude": 45.01,
+                "longitude": 9.01,
+                "elevation": 250.0,
+                "timestamp": 1690000300.0,
+            },
         ]
     }
     response = await client.post("/ml/predict", json=payload)
@@ -31,8 +41,18 @@ async def test_predict_activity(client: AsyncClient):
 async def test_gap_calculation(client: AsyncClient):
     payload = {
         "points": [
-            {"latitude": 45.0, "longitude": 9.0, "altitude": 200.0, "timestamp": 1690000000.0},
-            {"latitude": 45.01, "longitude": 9.01, "altitude": 250.0, "timestamp": 1690000300.0},
+            {
+                "latitude": 45.0,
+                "longitude": 9.0,
+                "altitude": 200.0,
+                "timestamp": 1690000000.0,
+            },
+            {
+                "latitude": 45.01,
+                "longitude": 9.01,
+                "altitude": 250.0,
+                "timestamp": 1690000300.0,
+            },
         ]
     }
     response = await client.post("/ml/gap", json=payload)
@@ -46,8 +66,18 @@ async def test_gap_calculation(client: AsyncClient):
 async def test_terrain_scoring(client: AsyncClient):
     payload = {
         "points": [
-            {"latitude": 45.0, "longitude": 9.0, "altitude": 200.0, "timestamp": 1690000000.0},
-            {"latitude": 45.01, "longitude": 9.01, "altitude": 250.0, "timestamp": 1690000300.0},
+            {
+                "latitude": 45.0,
+                "longitude": 9.0,
+                "altitude": 200.0,
+                "timestamp": 1690000000.0,
+            },
+            {
+                "latitude": 45.01,
+                "longitude": 9.01,
+                "altitude": 250.0,
+                "timestamp": 1690000300.0,
+            },
         ]
     }
     response = await client.post("/ml/terrain", json=payload)
