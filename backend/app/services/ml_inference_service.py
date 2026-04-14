@@ -14,15 +14,21 @@ if _ML_DIR not in sys.path:
 
 try:
     from training.feature_extractor import extract_window_features, GPSPoint
+
     _HAVE_FEATURE_EXTRACTOR = True
 except ImportError as e:
     print(f"Warning: Could not import ml.training.feature_extractor: {e}")
     _HAVE_FEATURE_EXTRACTOR = False
 
 # Configure models directory
-MODELS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "../../ml/models")
-MODEL_PATH = os.environ.get("ML_MODEL_PATH", os.path.join(MODELS_DIR, "activity_classifier_v1.onnx"))
+MODELS_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "../../ml/models"
+)
+MODEL_PATH = os.environ.get(
+    "ML_MODEL_PATH", os.path.join(MODELS_DIR, "activity_classifier_v1.onnx")
+)
 METADATA_PATH = os.path.join(MODELS_DIR, "model_metadata.json")
+
 
 class ActivityType(str, Enum):
     IDLE = "IDLE"
@@ -32,11 +38,13 @@ class ActivityType(str, Enum):
     CYCLING = "CYCLING"
     UNKNOWN = "UNKNOWN"
 
+
 class MLModelInfo(BaseModel):
     version: str
     updated_at: str
     accuracy: float
     features: List[str]
+
 
 class MLInferenceResult(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
@@ -44,15 +52,16 @@ class MLInferenceResult(BaseModel):
     confidence: float
     model_version: str
 
+
 class MLInferenceService:
     """
     On-server ML inference service using ONNX format of the XGBoost classifier.
     Used for clients that prefer to offload computation to the server.
     """
-    
+
     _session: Optional[ort.InferenceSession] = None
     _metadata: Dict[str, Any] = {}
-    
+
     @classmethod
     async def initialize(cls):
         """Load the model and metadata into memory."""
@@ -62,19 +71,17 @@ class MLInferenceService:
                 with open(METADATA_PATH, "r") as f:
                     cls._metadata = json.load(f)
             else:
-                cls._metadata = {
-                    "version": "unknown",
-                    "accuracy": 0.0,
-                    "features": []
-                }
-                
+                cls._metadata = {"version": "unknown", "accuracy": 0.0, "features": []}
+
             # Load ONNX model
             if os.path.exists(MODEL_PATH):
                 cls._session = await ort.InferenceSession.create(MODEL_PATH)
                 print(f"Loaded ML model from {MODEL_PATH}")
             else:
-                print(f"Warning: ML model not found at {MODEL_PATH}. Inference will return UNKNOWN.")
-                
+                print(
+                    f"Warning: ML model not found at {MODEL_PATH}. Inference will return UNKNOWN."
+                )
+
         except Exception as e:
             print(f"Failed to initialize ML Service: {e}")
             cls._session = None
@@ -85,7 +92,7 @@ class MLInferenceService:
             version=cls._metadata.get("version", "v1.0"),
             updated_at=cls._metadata.get("updated_at", str(datetime.now())),
             accuracy=cls._metadata.get("accuracy", 0.85),
-            features=cls._metadata.get("input_features", [])
+            features=cls._metadata.get("input_features", []),
         )
 
     @classmethod
@@ -96,7 +103,9 @@ class MLInferenceService:
         """
         if not _HAVE_FEATURE_EXTRACTOR:
             # Fallback if no model/extractor available
-            return MLInferenceResult(activity=ActivityType.UNKNOWN, confidence=0.0, model_version="no_extractor")
+            return MLInferenceResult(
+                activity=ActivityType.UNKNOWN, confidence=0.0, model_version="no_extractor"
+            )
 
         try:
             # Convert raw_points to GPSPoint format expected by feature_extractor
@@ -118,7 +127,9 @@ class MLInferenceService:
             return await cls.predict_activity(features)
         except Exception as e:
             print(f"Extraction or inference error: {e}")
-            return MLInferenceResult(activity=ActivityType.UNKNOWN, confidence=0.0, model_version="error")
+            return MLInferenceResult(
+                activity=ActivityType.UNKNOWN, confidence=0.0, model_version="error"
+            )
 
     @classmethod
     async def predict_activity(cls, features: List[float]) -> MLInferenceResult:
@@ -127,7 +138,9 @@ class MLInferenceService:
         """
         # If no model loaded, or mismatched feature count
         if cls._session is None:
-            return MLInferenceResult(activity=ActivityType.UNKNOWN, confidence=0.0, model_version="unknown")
+            return MLInferenceResult(
+                activity=ActivityType.UNKNOWN, confidence=0.0, model_version="unknown"
+            )
 
         try:
             # ONNX models from XGBoost typically expect a 2D float32 tensor
@@ -135,26 +148,31 @@ class MLInferenceService:
             label_idx = int(ort_outs[0][0])
             prob_map = ort_outs[1][0]
             confidence = float(prob_map.get(label_idx, 1.0))
-            
+
             # Map index to ActivityType
             classes = [
                 ActivityType.IDLE,
                 ActivityType.WALKING,
                 ActivityType.TREKKING,
                 ActivityType.RUNNING,
-                ActivityType.CYCLING
+                ActivityType.CYCLING,
             ]
-            
-            predicted_class = classes[label_idx] if 0 <= label_idx < len(classes) else ActivityType.UNKNOWN
-            
+
+            predicted_class = (
+                classes[label_idx] if 0 <= label_idx < len(classes) else ActivityType.UNKNOWN
+            )
+
             return MLInferenceResult(
                 activity=predicted_class,
                 confidence=confidence,
-                model_version=cls._metadata.get("version", "unknown")
+                model_version=cls._metadata.get("version", "unknown"),
             )
-            
+
         except Exception as e:
             print(f"Inference error: {e}")
-            return MLInferenceResult(activity=ActivityType.UNKNOWN, confidence=0.0, model_version="error")
+            return MLInferenceResult(
+                activity=ActivityType.UNKNOWN, confidence=0.0, model_version="error"
+            )
+
 
 ml_inference_service = MLInferenceService()

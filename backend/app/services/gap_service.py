@@ -17,7 +17,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-
 # ─── Minetti Cost-of-Transport Model ──────────────────────────────────────────
 
 # Polynomial coefficients for metabolic cost (J/kg/m) as a function of gradient.
@@ -68,28 +67,32 @@ def grade_adjustment_factor(gradient: float) -> float:
 
 # ─── Data Types ───────────────────────────────────────────────────────────────
 
+
 @dataclass
 class GPSSegment:
     """A segment between two GPS points."""
-    distance_m: float        # horizontal distance in meters
-    elevation_delta_m: float # altitude change (positive = uphill)
-    time_s: float            # time elapsed in seconds
+
+    distance_m: float  # horizontal distance in meters
+    elevation_delta_m: float  # altitude change (positive = uphill)
+    time_s: float  # time elapsed in seconds
 
 
 @dataclass
 class GAPResult:
     """Result of Grade Adjusted Pace calculation."""
-    actual_pace_min_km: float | None    # raw pace (min/km)
-    gap_pace_min_km: float | None       # grade-adjusted pace (min/km)
-    adjustment_factor: float            # multiplier applied
-    gradient_pct: float                 # gradient in percent
-    distance_m: float                   # horizontal distance
-    elevation_delta_m: float            # elevation change
+
+    actual_pace_min_km: float | None  # raw pace (min/km)
+    gap_pace_min_km: float | None  # grade-adjusted pace (min/km)
+    adjustment_factor: float  # multiplier applied
+    gradient_pct: float  # gradient in percent
+    distance_m: float  # horizontal distance
+    elevation_delta_m: float  # elevation change
 
 
 @dataclass
 class SessionGAPSummary:
     """Aggregate GAP statistics for an entire trek session."""
+
     actual_avg_pace_min_km: float | None
     gap_avg_pace_min_km: float | None
     total_distance_m: float
@@ -101,6 +104,7 @@ class SessionGAPSummary:
 
 
 # ─── Core GAP Functions ──────────────────────────────────────────────────────
+
 
 def compute_segment_gap(segment: GPSSegment) -> GAPResult:
     """
@@ -182,11 +186,7 @@ def compute_session_gap(segments: list[GPSSegment]) -> SessionGAPSummary:
         else:
             total_loss += abs(seg.elevation_delta_m)
 
-        gradient = (
-            seg.elevation_delta_m / seg.distance_m
-            if seg.distance_m > 0.1
-            else 0.0
-        )
+        gradient = seg.elevation_delta_m / seg.distance_m if seg.distance_m > 0.1 else 0.0
         gradient_sum += gradient
 
         factor = grade_adjustment_factor(gradient)
@@ -200,11 +200,7 @@ def compute_session_gap(segments: list[GPSSegment]) -> SessionGAPSummary:
         actual_avg_pace = None
 
     # GAP average pace (distance-weighted adjustment)
-    avg_factor = (
-        weighted_factor_sum / total_distance
-        if total_distance > 0.1
-        else 1.0
-    )
+    avg_factor = weighted_factor_sum / total_distance if total_distance > 0.1 else 1.0
     gap_avg_pace = actual_avg_pace / avg_factor if actual_avg_pace else None
 
     avg_gradient_pct = (gradient_sum / len(segments)) * 100
@@ -255,10 +251,12 @@ def gps_points_to_segments(points: list[dict]) -> list[GPSSegment]:
         else:
             time_s = (t2 - t1).total_seconds() if hasattr(t2, "total_seconds") else 1.0
 
-        segments.append(GPSSegment(
-            distance_m=distance_m,
-            elevation_delta_m=elevation_delta,
-            time_s=max(time_s, 0.001),
-        ))
+        segments.append(
+            GPSSegment(
+                distance_m=distance_m,
+                elevation_delta_m=elevation_delta,
+                time_s=max(time_s, 0.001),
+            )
+        )
 
     return segments

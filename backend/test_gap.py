@@ -1,6 +1,6 @@
-
 import sys
 import os
+
 sys.path.append(os.path.dirname(__file__))
 
 from app.services.gap_service import GPSSegment, compute_segment_gap
@@ -9,8 +9,14 @@ scenarios = [
     ("Flat (0% grade)", GPSSegment(distance_m=100.0, elevation_delta_m=0.0, time_s=30.0)),
     ("Gentle Uphill (5% grade)", GPSSegment(distance_m=100.0, elevation_delta_m=5.0, time_s=30.0)),
     ("Steep Uphill (15% grade)", GPSSegment(distance_m=100.0, elevation_delta_m=15.0, time_s=30.0)),
-    ("Gentle Downhill (-5% grade)", GPSSegment(distance_m=100.0, elevation_delta_m=-5.0, time_s=30.0)),
-    ("Steep Downhill (-15% grade)", GPSSegment(distance_m=100.0, elevation_delta_m=-15.0, time_s=30.0)),
+    (
+        "Gentle Downhill (-5% grade)",
+        GPSSegment(distance_m=100.0, elevation_delta_m=-5.0, time_s=30.0),
+    ),
+    (
+        "Steep Downhill (-15% grade)",
+        GPSSegment(distance_m=100.0, elevation_delta_m=-15.0, time_s=30.0),
+    ),
 ]
 
 print(f"\n{chr(61)*50}")
@@ -25,5 +31,3 @@ for name, seg in scenarios:
     print(f"  GAP Factor  : x{res.adjustment_factor:.2f}")
     print(f"  GAP         : {res.gap_pace_min_km:5.2f} min/km")
     print("-" * 50)
-
-

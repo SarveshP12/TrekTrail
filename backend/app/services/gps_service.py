@@ -43,8 +43,10 @@ async def store_gps_points(db: AsyncSession, session_id: UUID, points: list[GPSP
 
     rows = list(seen.values())
 
-    stmt = pg_insert(GPSTrackPoint).values(rows).on_conflict_do_nothing(
-        index_elements=["time", "session_id"]
+    stmt = (
+        pg_insert(GPSTrackPoint)
+        .values(rows)
+        .on_conflict_do_nothing(index_elements=["time", "session_id"])
     )
     await db.execute(stmt)
     await db.flush()
@@ -53,7 +55,9 @@ async def store_gps_points(db: AsyncSession, session_id: UUID, points: list[GPSP
     if inserted < len(points):
         logger.info(
             "Deduplicated %d → %d points for session %s",
-            len(points), inserted, session_id,
+            len(points),
+            inserted,
+            session_id,
         )
     return inserted
 

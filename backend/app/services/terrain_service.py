@@ -20,12 +20,13 @@ from dataclasses import dataclass
 
 from app.services.gap_service import GPSSegment, gps_points_to_segments
 
-
 # ─── Scoring Configuration ───────────────────────────────────────────────────
+
 
 @dataclass
 class TerrainScoringWeights:
     """Weights for each difficulty component (must sum to 1.0)."""
+
     gradient: float = 0.30
     elevation: float = 0.25
     variability: float = 0.15
@@ -38,11 +39,13 @@ DEFAULT_WEIGHTS = TerrainScoringWeights()
 
 # ─── Result Types ─────────────────────────────────────────────────────────────
 
+
 @dataclass
 class TerrainDifficultyResult:
     """Complete terrain difficulty analysis."""
-    overall_score: float        # 0-10 composite score
-    difficulty_label: str       # "Easy", "Moderate", "Hard", "Expert", "Extreme"
+
+    overall_score: float  # 0-10 composite score
+    difficulty_label: str  # "Easy", "Moderate", "Hard", "Expert", "Extreme"
 
     # Sub-scores (each 0-10)
     gradient_score: float
@@ -62,6 +65,7 @@ class TerrainDifficultyResult:
 
 
 # ─── Sub-Score Functions ──────────────────────────────────────────────────────
+
 
 def _sigmoid_score(value: float, midpoint: float, steepness: float = 1.0) -> float:
     """
@@ -157,6 +161,7 @@ def compute_altitude_score(max_altitude_m: float) -> float:
 
 # ─── Difficulty Label ─────────────────────────────────────────────────────────
 
+
 def difficulty_label(score: float) -> str:
     """Map a 0-10 score to a human-readable difficulty label."""
     if score < 2.0:
@@ -172,6 +177,7 @@ def difficulty_label(score: float) -> str:
 
 
 # ─── Main Scoring Function ───────────────────────────────────────────────────
+
 
 def compute_terrain_difficulty(
     segments: list[GPSSegment],
@@ -233,13 +239,12 @@ def compute_terrain_difficulty(
 
     # Gradient changes per km (roughness metric)
     gradient_changes = sum(
-        1 for i in range(1, len(gradients))
+        1
+        for i in range(1, len(gradients))
         if abs(gradients[i] - gradients[i - 1]) > 0.02  # >2% change
     )
     gradient_changes_per_km = (
-        (gradient_changes / total_distance) * 1000
-        if total_distance > 0
-        else 0.0
+        (gradient_changes / total_distance) * 1000 if total_distance > 0 else 0.0
     )
 
     # ── Compute sub-scores ──

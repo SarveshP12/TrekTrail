@@ -42,6 +42,7 @@ router = APIRouter(prefix="/ml", tags=["Machine Learning"])
 
 # -- Predict --
 
+
 class GPSPointInput(BaseModel):
     timestamp: float = Field(..., description="Timestamp in seconds since epoch")
     latitude: float
@@ -56,11 +57,13 @@ class PredictRequest(BaseModel):
     model_config = {"protected_namespaces": ()}
     """Request body for activity prediction."""
     points: list[GPSPointInput] = Field(
-        ..., min_length=2,
+        ...,
+        min_length=2,
         description="GPS points window (minimum 2, recommended 5)",
     )
     model_version: Optional[str] = Field(
-        None, description="Request a specific model version",
+        None,
+        description="Request a specific model version",
     )
 
 
@@ -76,13 +79,17 @@ class PredictResponse(BaseModel):
 
 # -- GAP --
 
+
 class GAPRequest(BaseModel):
     """Request for Grade Adjusted Pace calculation."""
+
     session_id: Optional[str] = Field(
-        None, description="Trek session ID (loads points from DB)",
+        None,
+        description="Trek session ID (loads points from DB)",
     )
     points: Optional[list[GPSPointInput]] = Field(
-        None, description="GPS points (alternative to session_id)",
+        None,
+        description="GPS points (alternative to session_id)",
     )
 
 
@@ -97,6 +104,7 @@ class GAPSegmentResult(BaseModel):
 
 class GAPResponse(BaseModel):
     """Grade Adjusted Pace result."""
+
     actual_avg_pace_min_km: Optional[float]
     gap_avg_pace_min_km: Optional[float]
     total_distance_m: float
@@ -110,19 +118,24 @@ class GAPResponse(BaseModel):
 
 # -- Terrain --
 
+
 class TerrainRequest(BaseModel):
     """Request for terrain difficulty scoring."""
+
     session_id: Optional[str] = Field(
-        None, description="Trek session ID (loads points from DB)",
+        None,
+        description="Trek session ID (loads points from DB)",
     )
     points: Optional[list[GPSPointInput]] = Field(
-        None, description="GPS points (alternative to session_id)",
+        None,
+        description="GPS points (alternative to session_id)",
     )
     max_altitude_m: Optional[float] = None
 
 
 class TerrainResponse(BaseModel):
     """Terrain difficulty result."""
+
     overall_score: float
     difficulty_label: str
     gradient_score: float
@@ -140,6 +153,7 @@ class TerrainResponse(BaseModel):
 
 
 # -- Model Info --
+
 
 class ModelInfoResponse(BaseModel):
     model_config = {"protected_namespaces": ()}
@@ -176,7 +190,7 @@ def _server_predict(points: list[GPSPointInput]) -> tuple[str, float, dict[str, 
         a1 = points[i - 1].altitude or 0
         a2 = points[i].altitude or 0
         if a2 > a1:
-            alt_gain += (a2 - a1)
+            alt_gain += a2 - a1
 
     probs = {label: 0.05 for label in MODEL_LABELS}
 
@@ -208,6 +222,7 @@ def _server_predict(points: list[GPSPointInput]) -> tuple[str, float, dict[str, 
 
 # ─── Endpoints ────────────────────────────────────────────────────────────────
 
+
 @router.post("/predict", response_model=PredictResponse)
 async def predict_activity(request: PredictRequest):
     """
@@ -222,13 +237,13 @@ async def predict_activity(request: PredictRequest):
     import time
 
     start = time.monotonic()
-    
+
     # Use real ML inference service
     result = await ml_inference_service.extract_and_predict(request.points)
-    
+
     elapsed_ms = (time.monotonic() - start) * 1000
 
-    # MLInferenceResult doesn't output full probabilities array natively yet, 
+    # MLInferenceResult doesn't output full probabilities array natively yet,
     # but we can simulate it with a highly-confident one-hot or modify it.
     # For now, put confidence into the selected label and distribute rest.
     probs = {label: 0.0 for label in MODEL_LABELS}
@@ -353,6 +368,7 @@ async def get_model_info():
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
+
 
 async def _resolve_points(
     session_id: str | None,

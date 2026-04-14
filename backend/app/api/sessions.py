@@ -41,6 +41,7 @@ async def upload_points(
         # Safety net: if any duplicates still slip through, rollback and report
         await ts_db.rollback()
         import logging
+
         logging.getLogger(__name__).warning(
             "GPS upload partial failure for session %s: %s", session_id, exc
         )
