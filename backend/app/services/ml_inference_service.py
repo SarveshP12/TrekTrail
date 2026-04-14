@@ -148,6 +148,7 @@ class MLInferenceService:
 
         try:
             import numpy as np
+
             input_name = cls._session.get_inputs()[0].name
             input_tensor = np.array([features], dtype=np.float32)
             ort_outs = cls._session.run(None, {input_name: input_tensor})
