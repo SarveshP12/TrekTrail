@@ -15,7 +15,6 @@ from __future__ import annotations
 import json
 import os
 import shutil
-from typing import Any
 
 import numpy as np
 
@@ -78,7 +77,7 @@ def export_onnx_to_tf_savedmodel(
     print(f"  Loading ONNX model from {onnx_path}...")
     onnx_model = onnx.load(onnx_path)
 
-    print(f"  Converting ONNX → TF SavedModel...")
+    print("  Converting ONNX → TF SavedModel...")
     tf_rep = prepare(onnx_model)
 
     if os.path.exists(savedmodel_dir):
@@ -109,11 +108,11 @@ def export_tf_to_tflite(
     """
     import tensorflow as tf
 
-    print(f"  Converting TF SavedModel → TFLite...")
+    print("  Converting TF SavedModel → TFLite...")
     converter = tf.lite.TFLiteConverter.from_saved_model(savedmodel_dir)
 
     if quantize:
-        print(f"  Applying dynamic range quantization...")
+        print("  Applying dynamic range quantization...")
         converter.optimizations = [tf.lite.Optimize.DEFAULT]
 
         # Representative dataset for full integer quantization
@@ -141,7 +140,7 @@ def export_tf_to_tflite(
     try:
         import coremltools as ct
 
-        print(f"  Converting TF SavedModel → Core ML (.mlmodel)...")
+        print("  Converting TF SavedModel → Core ML (.mlmodel)...")
         # Load the saved model and convert it
         input_feature = ct.TensorType(name="features", shape=(1, num_features))
         mlmodel = ct.convert(
@@ -197,7 +196,7 @@ def export_direct_tflite(
     xgb_model.load_model(model_path)
 
     # Generate distillation training data from XGBoost
-    print(f"  Generating distillation dataset (10000 samples)...")
+    print("  Generating distillation dataset (10000 samples)...")
     rng = np.random.RandomState(42)
     X_distill = rng.randn(10000, num_features).astype(np.float32)
 
@@ -205,7 +204,7 @@ def export_direct_tflite(
     y_probs = xgb_model.predict_proba(X_distill)
 
     # Build a small MLP that mimics XGBoost
-    print(f"  Training distillation MLP...")
+    print("  Training distillation MLP...")
     model = tf.keras.Sequential(
         [
             tf.keras.layers.Input(shape=(num_features,)),
@@ -241,7 +240,7 @@ def export_direct_tflite(
     print(f"  Distillation agreement: {agreement:.4f}")
 
     # Convert to TFLite
-    print(f"  Converting MLP → TFLite...")
+    print("  Converting MLP → TFLite...")
     os.environ["TF_USE_LEGACY_KERAS"] = "1"
     temp_dir = os.path.join(os.path.dirname(tflite_path), "temp_distill")
     model.export(temp_dir)
@@ -266,7 +265,7 @@ def export_direct_tflite(
     try:
         import coremltools as ct
 
-        print(f"  Converting MLP → Core ML (.mlmodel)...")
+        print("  Converting MLP → Core ML (.mlmodel)...")
         # Convert the Keras model to Core ML
         # We specify input shape and output
         # Using neuralnetwork to export as .mlmodel file format
@@ -404,7 +403,7 @@ def main():
     args = parser.parse_args()
 
     print(f"\n{'='*60}")
-    print(f"  TrekTrack AI — Model Export Pipeline")
+    print("  TrekTrack AI — Model Export Pipeline")
     print(f"{'='*60}")
     print(f"  Model:    {args.model}")
     print(f"  Output:   {args.output_dir}")
@@ -421,7 +420,7 @@ def main():
     )
 
     print(f"\n{'='*60}")
-    print(f"  ✅ Export complete! Files:")
+    print("  ✅ Export complete! Files:")
     for name, path in paths.items():
         size = os.path.getsize(path) if os.path.isfile(path) else 0
         print(f"     {name}: {path} ({size/1024:.1f} KB)")

@@ -13,7 +13,7 @@ Features are computed over a configurable sliding window (default 5s / 5 reading
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 import numpy as np

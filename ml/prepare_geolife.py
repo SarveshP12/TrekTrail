@@ -1,7 +1,6 @@
 import pandas as pd
 import glob
 import os
-import sys
 
 data_dir = os.path.abspath(
     r"d:\PROJECT\TrekTrail\ml\data\raw\geolife\Geolife Trajectories 1.3\Data"

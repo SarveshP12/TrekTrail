@@ -104,14 +104,14 @@ class ActivityClassifierTrainer:
             Dictionary of training results and metrics.
         """
         print(f"\n{'='*60}")
-        print(f"  TrekTrack AI — Activity Classifier Training")
+        print("  TrekTrack AI — Activity Classifier Training")
         print(f"{'='*60}")
         print(f"  Samples: {X.shape[0]}, Features: {X.shape[1]}")
         print(f"  Classes: {NUM_CLASSES} ({', '.join(ACTIVITY_LABELS)})")
 
         # ── Class distribution ──
         unique, counts = np.unique(y, return_counts=True)
-        print(f"\n  Class distribution:")
+        print("\n  Class distribution:")
         for cls_id, count in zip(unique, counts):
             print(
                 f"    {ID_TO_LABEL[cls_id]:>10}: {count:>5} ({count/len(y)*100:.1f}%)"
@@ -150,7 +150,7 @@ class ActivityClassifierTrainer:
             print(f"  CV F1 (macro): {cv_scores.mean():.4f} ± {cv_scores.std():.4f}")
 
         # ── Train final model ──
-        print(f"\n  Training final model...")
+        print("\n  Training final model...")
         start = time.time()
 
         self.model = xgb.XGBClassifier(**self.params)
@@ -168,8 +168,8 @@ class ActivityClassifierTrainer:
         y_pred = self.model.predict(X_test_scaled)
         accuracy = accuracy_score(y_test, y_pred)
         f1 = f1_score(y_test, y_pred, average="macro")
-        conf_matrix = confusion_matrix(y_test, y_pred)
-        class_report = classification_report(
+        _ = confusion_matrix(y_test, y_pred)
+        _ = classification_report(
             y_test,
             y_pred,
             target_names=ACTIVITY_LABELS,
@@ -178,7 +178,7 @@ class ActivityClassifierTrainer:
 
         print(f"\n  Test Accuracy: {accuracy:.4f}")
         print(f"  Test F1 (macro): {f1:.4f}")
-        print(f"\n  Classification Report:")
+        print("\n  Classification Report:")
         print(classification_report(y_test, y_pred, target_names=ACTIVITY_LABELS))
 
         # ── Feature importance ──
@@ -188,7 +188,7 @@ class ActivityClassifierTrainer:
             key=lambda x: x[1],
             reverse=True,
         )
-        print(f"  Top 10 Features:")
+        print("  Top 10 Features:")
         for fname, imp in importance_ranking[:10]:
             bar = "█" * int(imp * 100)
             print(f"    {fname:<25} {imp:.4f} {bar}")
@@ -333,7 +333,7 @@ def main():
     print(f"\n  Saving model artifacts to {args.output_dir}...")
     paths = trainer.save()
     print(f"\n{'='*60}")
-    print(f"  ✅ Training complete! Files:")
+    print("  ✅ Training complete! Files:")
     for name, path in paths.items():
         print(f"     {name}: {path}")
     print(f"{'='*60}\n")

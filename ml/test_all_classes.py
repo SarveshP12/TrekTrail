@@ -41,7 +41,7 @@ probs = model.predict(dmatrix)
 preds = np.argmax(probs, axis=1)
 
 print(f"\n{chr(61)*50}")
-print(f"  TrekTrack AI - All Activities Prediction Test")
+print("  TrekTrack AI - All Activities Prediction Test")
 print(f"{chr(61)*50}")
 print(f"{'Actual':<15} | {'Predicted':<15} | {'Confidence'}")
 print(f"{'-':-<15}-+-{'-':-<15}-+-{'-':-<15}")
