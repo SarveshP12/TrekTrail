@@ -1,6 +1,6 @@
 {
   "export_method": "distillation",
-  "distillation_agreement": 0.8714,
+  "distillation_agreement": 0.7793,
   "num_features": 20,
   "num_classes": 5,
   "quantized": false,

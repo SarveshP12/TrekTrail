@@ -53,6 +53,7 @@ class GPSPointInput(BaseModel):
 
 
 class PredictRequest(BaseModel):
+    model_config = {"protected_namespaces": ()}
     """Request body for activity prediction."""
     points: list[GPSPointInput] = Field(
         ..., min_length=2,
@@ -64,6 +65,7 @@ class PredictRequest(BaseModel):
 
 
 class PredictResponse(BaseModel):
+    model_config = {"protected_namespaces": ()}
     """Activity classification result."""
     predicted_label: str
     confidence: float
@@ -140,6 +142,7 @@ class TerrainResponse(BaseModel):
 # -- Model Info --
 
 class ModelInfoResponse(BaseModel):
+    model_config = {"protected_namespaces": ()}
     """Model version and metadata."""
     model_type: str
     model_version: str

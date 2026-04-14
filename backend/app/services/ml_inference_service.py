@@ -3,7 +3,7 @@ import os
 import json
 import sys
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
@@ -39,6 +39,7 @@ class MLModelInfo(BaseModel):
     features: List[str]
 
 class MLInferenceResult(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     activity: ActivityType
     confidence: float
     model_version: str

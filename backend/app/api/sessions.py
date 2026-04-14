@@ -34,8 +34,17 @@ async def upload_points(
     current_user: User = Depends(get_current_user),
     ts_db: AsyncSession = Depends(get_ts_db),
 ):
-    await store_gps_points(ts_db, session_id, data.points)
-    return {"accepted": len(data.points)}
+    try:
+        count = await store_gps_points(ts_db, session_id, data.points)
+        return {"accepted": count}
+    except Exception as exc:
+        # Safety net: if any duplicates still slip through, rollback and report
+        await ts_db.rollback()
+        import logging
+        logging.getLogger(__name__).warning(
+            "GPS upload partial failure for session %s: %s", session_id, exc
+        )
+        return {"accepted": 0, "warning": "Some points could not be stored (duplicates)"}
 
 
 @router.post("/{session_id}/end", response_model=TrekSessionRead)
