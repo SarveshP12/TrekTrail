@@ -1,4 +1,3 @@
-import pytest
 from app.services.terrain_service import compute_terrain_difficulty_from_points
 
 

@@ -11,18 +11,15 @@ Exposes:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db, get_ts_db
+from app.database import get_ts_db
 from app.services.gap_service import (
-    GPSSegment,
-    GAPResult,
-    SessionGAPSummary,
     compute_segment_gap,
     compute_session_gap,
     gps_points_to_segments,
@@ -30,8 +27,6 @@ from app.services.gap_service import (
 from app.services.gps_service import get_session_points
 from app.services.ml_inference_service import ml_inference_service
 from app.services.terrain_service import (
-    TerrainDifficultyResult,
-    compute_terrain_difficulty,
     compute_terrain_difficulty_from_points,
 )
 

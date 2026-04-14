@@ -134,7 +134,7 @@ def compute_variability_score(gradients: list[float]) -> float:
         changes.append(abs(gradients[i] - gradients[i - 1]))
 
     avg_change = sum(changes) / len(changes)
-    max_change = max(changes) if changes else 0
+    max(changes) if changes else 0
 
     # avg_change in % gradient: 2% = smooth, 10% = rough, 20% = very rough
     return _sigmoid_score(avg_change * 100, midpoint=8, steepness=1.3)

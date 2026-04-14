@@ -1,11 +1,12 @@
-import onnxruntime as ort
-import os
 import json
+import os
 import sys
-from enum import Enum
-from pydantic import BaseModel, ConfigDict
-from typing import List, Dict, Any, Optional
 from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional
+
+import onnxruntime as ort
+from pydantic import BaseModel, ConfigDict
 
 # Add ml package to sys path so we can import feature extractor
 _ML_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../ml"))
@@ -13,7 +14,7 @@ if _ML_DIR not in sys.path:
     sys.path.append(_ML_DIR)
 
 try:
-    from training.feature_extractor import extract_window_features, GPSPoint
+    from training.feature_extractor import GPSPoint, extract_window_features
 
     _HAVE_FEATURE_EXTRACTOR = True
 except ImportError as e:
@@ -99,7 +100,8 @@ class MLInferenceService:
     async def extract_and_predict(cls, raw_points: List[Any]) -> MLInferenceResult:
         """
         Takes raw GPS points, extracts features, and runs inference.
-        raw_points: List of objects with attributes (timestamp, latitude, longitude, altitude, accuracy, speed, heading).
+        raw_points: List of objects with attributes (timestamp, latitude, longitude,
+        altitude, accuracy, speed, heading).
         """
         if not _HAVE_FEATURE_EXTRACTOR:
             # Fallback if no model/extractor available
@@ -145,6 +147,11 @@ class MLInferenceService:
             )
 
         try:
+            import numpy as np
+            input_name = cls._session.get_inputs()[0].name
+            input_tensor = np.array([features], dtype=np.float32)
+            ort_outs = cls._session.run(None, {input_name: input_tensor})
+
             # ONNX models from XGBoost typically expect a 2D float32 tensor
             # Assuming output[0] is the predicted class indices, output[1] is probabilities map
             label_idx = int(ort_outs[0][0])

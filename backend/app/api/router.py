@@ -2,9 +2,9 @@ from fastapi import APIRouter
 
 from app.api.auth import router as auth_router
 from app.api.elevation import router as elevation_router
+from app.api.ml import router as ml_router
 from app.api.sessions import router as sessions_router
 from app.api.users import router as users_router
-from app.api.ml import router as ml_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)

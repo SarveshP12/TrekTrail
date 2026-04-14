@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -29,7 +29,7 @@ scenarios = [
 ]
 
 print(f"\n{chr(61) * 50}")
-print(f"  TrekTrack AI - Grade Adjusted Pace (GAP) Test")
+print("  TrekTrack AI - Grade Adjusted Pace (GAP) Test")
 print(f"{chr(61) * 50}")
 
 # Note: 100m in 30s = 3.33 m/s = 5:00 min/km actual pace for all scenarios.
